@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { enableFirestorePersistence } from './firebase/enablePersistence';
 import Header from './components/Header';
@@ -231,24 +231,25 @@ const App: React.FC = () => {
 // مكون إعادة التوجيه حسب الدور
 const DashboardRedirect: React.FC = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   
   useEffect(() => {
     if (user) {
       switch (user.role) {
         case 'admin':
-          window.location.href = '/admin';
+          navigate('/admin', { replace: true });
           break;
         case 'mayor':
-          window.location.href = '/mayor';
+          navigate('/mayor', { replace: true });
           break;
         case 'secretary':
-          window.location.href = '/secretary';
+          navigate('/secretary', { replace: true });
           break;
         default:
-          window.location.href = '/login';
+          navigate('/login', { replace: true });
       }
     }
-  }, [user]);
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

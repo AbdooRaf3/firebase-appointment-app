@@ -34,11 +34,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        const rawRole = (userData as any).role;
+        const normalizedRole = typeof rawRole === 'string' ? rawRole.toLowerCase().trim() : rawRole;
+        if (normalizedRole !== 'admin' && normalizedRole !== 'mayor' && normalizedRole !== 'secretary') {
+          throw new Error('دور المستخدم غير صالح. يرجى تحديث حقل role في بيانات المستخدم');
+        }
+        const role: 'admin' | 'mayor' | 'secretary' = normalizedRole;
         const user: User = {
           uid: firebaseUser.uid,
           email: firebaseUser.email || '',
           displayName: userData.displayName,
-          role: userData.role,
+          role: role,
           createdAt: userData.createdAt.toDate()
         };
         set({ user, loading: false });
@@ -86,11 +92,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           
           if (userDoc.exists()) {
             const userData = userDoc.data();
+            const rawRole = (userData as any).role;
+            const normalizedRole = typeof rawRole === 'string' ? rawRole.toLowerCase().trim() : rawRole;
+            if (normalizedRole !== 'admin' && normalizedRole !== 'mayor' && normalizedRole !== 'secretary') {
+              set({ user: null, loading: false, error: 'دور المستخدم غير صالح. يرجى تحديث حقل role في بيانات المستخدم' });
+              return;
+            }
+            const role: 'admin' | 'mayor' | 'secretary' = normalizedRole;
             const user: User = {
               uid: firebaseUser.uid,
               email: firebaseUser.email || '',
               displayName: userData.displayName,
-              role: userData.role,
+              role: role,
               createdAt: userData.createdAt.toDate()
             };
             set({ user, loading: false });
