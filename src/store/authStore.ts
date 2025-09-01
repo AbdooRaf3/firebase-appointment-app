@@ -10,7 +10,7 @@ import {
 import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthStore extends AuthState {
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loading: true,
   error: null,
 
-  signIn: async (email: string, password: string): Promise<void> => {
+  signIn: async (email: string, password: string): Promise<User | null> => {
     try {
       set({ loading: true, error: null });
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           createdAt: userData.createdAt.toDate()
         };
         set({ user, loading: false });
-        return;
+        return user;
       } else {
         throw new Error('لم يتم العثور على بيانات المستخدم');
       }

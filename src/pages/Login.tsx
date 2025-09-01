@@ -49,21 +49,17 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await signIn(email, password);
+      const signedInUser = await signIn(email, password);
       addToast({
         type: 'success',
         message: 'تم تسجيل الدخول بنجاح'
       });
       
       // التوجيه المباشر بعد نجاح تسجيل الدخول
-      // تأخير قصير للتأكد من تحديث Store
-      setTimeout(() => {
-        const currentUser = useAuthStore.getState().user;
-        if (currentUser) {
-          const redirectPath = getRedirectPath(currentUser.role);
-          navigate(redirectPath);
-        }
-      }, 100);
+      if (signedInUser) {
+        const redirectPath = getRedirectPath(signedInUser.role);
+        navigate(redirectPath);
+      }
     } catch (error: any) {
       addToast({
         type: 'error',
