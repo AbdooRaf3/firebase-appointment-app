@@ -9,7 +9,11 @@ export default defineConfig(({ command, mode }) => {
     plugins: [react()],
     server: {
       port: 3000,
-      host: true
+      host: true,
+      ...(isProduction && {
+        https: false, // يمكن تفعيل HTTPS في الإنتاج
+        cors: true
+      })
     },
     build: {
       outDir: 'dist',
@@ -44,15 +48,6 @@ export default defineConfig(({ command, mode }) => {
     define: {
       __DEV__: !isProduction,
       __PROD__: isProduction
-    },
-    // تحسينات الأمان
-    server: {
-      port: 3000,
-      host: true,
-      ...(isProduction && {
-        https: false, // يمكن تفعيل HTTPS في الإنتاج
-        cors: true
-      })
     }
   }
 })
