@@ -1,17 +1,28 @@
 {
   "name": "mayor-appointments-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build:prod": "tsc && vite build --mode production",
+    "build:custom": "node scripts/build-production.js",
     "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "type-check": "tsc --noEmit",
     "emulate": "firebase emulators:start --only firestore,hosting",
-    "deploy": "firebase deploy --only hosting",
+    "deploy": "npm run build:prod && firebase deploy --only hosting",
     "deploy:functions": "firebase deploy --only functions",
-    "deploy:all": "firebase deploy"
+    "deploy:all": "npm run build:prod && firebase deploy",
+    "analyze": "npm run build:prod && npx vite-bundle-analyzer dist",
+    "test:build": "npm run build:prod && npm run preview",
+    "docker:build": "docker build -t mayor-appointments-app:latest .",
+    "docker:run": "docker run -d --name mayor-appointments-app --restart unless-stopped -p 80:80 mayor-appointments-app:latest",
+    "docker:stop": "docker stop mayor-appointments-app && docker rm mayor-appointments-app",
+    "docker:logs": "docker logs mayor-appointments-app",
+    "docker:production": "bash scripts/docker-production.sh"
   },
   "dependencies": {
     "react": "^18.2.0",
