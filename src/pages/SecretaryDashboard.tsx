@@ -5,6 +5,7 @@ import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
+import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { Link } from 'react-router-dom';
@@ -12,6 +13,7 @@ import { Link } from 'react-router-dom';
 const SecretaryDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
+  const { sendNotification } = useNotificationStore();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +90,18 @@ const SecretaryDashboard: React.FC = () => {
     try {
       const appointmentRef = doc(db, 'appointments', appointment.id!);
       await updateDoc(appointmentRef, { status: newStatus });
+      
+      // إرسال إشعار لرئيس البلدية عن تغيير حالة الموعد
+      const mayorUser = users.find(u => u.uid === appointment.assignedToUid);
+      if (mayorUser) {
+        await sendNotification({
+          userId: appointment.assignedToUid,
+          title: 'تحديث حالة الموعد',
+          message: `تم تحديث حالة الموعد "${appointment.title}" إلى "${newStatus === 'done' ? 'مكتمل' : newStatus === 'cancelled' ? 'ملغي' : 'في الانتظار'}"`,
+          type: 'status_changed',
+          appointmentId: appointment.id
+        });
+      }
       
       addToast({
         type: 'success',

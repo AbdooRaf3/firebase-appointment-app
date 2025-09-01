@@ -7,12 +7,89 @@ admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging();
 
-/**
- * Cloud Function لإرسال إشعارات Push عند إنشاء موعد جديد
- * 
- * ملاحظة: هذه الوظيفة اختيارية وقد تحتاج إلى ترقية خطة Firebase
- * من Spark إلى Blaze حسب استخدامك
- */
+// إرسال الإشعارات المجدولة
+export const sendScheduledNotifications = functions.pubsub
+  .schedule('every 1 minutes')
+  .onRun(async (context) => {
+    try {
+      const now = admin.firestore.Timestamp.now();
+      
+      // البحث عن الإشعارات المجدولة للإرسال
+      const scheduledNotificationsRef = db.collection('scheduledNotifications');
+      const snapshot = await scheduledNotificationsRef
+        .where('scheduledFor', '<=', now)
+        .where('isSent', '==', false)
+        .get();
+
+      const batch = db.batch();
+      const notificationsToSend: any[] = [];
+
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        
+        // إضافة الإشعار إلى مجموعة الإشعارات
+        const notificationRef = db.collection('notifications').doc();
+        batch.set(notificationRef, {
+          userId: data.userId,
+          title: data.title,
+          message: data.message,
+          type: data.type,
+          appointmentId: data.appointmentId,
+          isRead: false,
+          createdAt: now
+        });
+
+        // تحديث حالة الإشعار المجدول
+        batch.update(doc.ref, { isSent: true });
+
+        notificationsToSend.push({
+          userId: data.userId,
+          title: data.title,
+          message: data.message
+        });
+      });
+
+      // تنفيذ العمليات
+      await batch.commit();
+
+      // إرسال إشعارات Push (إذا كان لديك FCM)
+      for (const notification of notificationsToSend) {
+        try {
+          // البحث عن توكنات المستخدم
+          const userTokensRef = db.collection('deviceTokens');
+          const userTokensSnapshot = await userTokensRef
+            .where('uid', '==', notification.userId)
+            .get();
+
+          if (!userTokensSnapshot.empty) {
+            const tokens = userTokensSnapshot.docs.map(doc => doc.data().token);
+            
+            // إرسال إشعار FCM
+            const message = {
+              notification: {
+                title: notification.title,
+                body: notification.message
+              },
+              tokens: tokens
+            };
+
+            const response = await admin.messaging().sendMulticast(message);
+            console.log('تم إرسال الإشعارات:', response.successCount, 'من', response.responses.length);
+          }
+        } catch (error) {
+          console.error('فشل في إرسال إشعار FCM:', error);
+        }
+      }
+
+      console.log(`تم معالجة ${snapshot.size} إشعار مجدول`);
+      return null;
+    } catch (error) {
+      console.error('فشل في معالجة الإشعارات المجدولة:', error);
+      return null;
+    }
+  });
+
+// إرسال إشعار عند إنشاء موعد جديد
 export const onAppointmentCreated = functions.firestore
   .document('appointments/{appointmentId}')
   .onCreate(async (snap, context) => {
@@ -20,97 +97,49 @@ export const onAppointmentCreated = functions.firestore
       const appointmentData = snap.data();
       const appointmentId = context.params.appointmentId;
 
-      console.log(`تم إنشاء موعد جديد: ${appointmentId}`);
-
-      // جلب بيانات رئيس البلدية المخصص له الموعد
-      const mayorUid = appointmentData.assignedToUid;
-      if (!mayorUid) {
-        console.log('لم يتم تحديد رئيس بلدية للموعد');
+      // البحث عن بيانات المستخدم المعين
+      const userDoc = await db.collection('users').doc(appointmentData.assignedToUid).get();
+      if (!userDoc.exists) {
+        console.log('المستخدم غير موجود');
         return null;
       }
 
-      // جلب بيانات رئيس البلدية
-      const mayorDoc = await db.collection('users').doc(mayorUid).get();
-      if (!mayorDoc.exists) {
-        console.log(`لم يتم العثور على رئيس البلدية: ${mayorUid}`);
-        return null;
-      }
+      const userData = userDoc.data();
 
-      const mayorData = mayorDoc.data();
-      const mayorName = mayorData?.displayName || 'رئيس البلدية';
-
-      // جلب توكنات الإشعارات لرئيس البلدية
-      const tokenDocs = await db
-        .collection('deviceTokens')
-        .where('uid', '==', mayorUid)
-        .get();
-
-      if (tokenDocs.empty) {
-        console.log(`لا توجد توكنات إشعارات لرئيس البلدية: ${mayorUid}`);
-        return null;
-      }
-
-      const tokens: string[] = [];
-      tokenDocs.forEach(doc => {
-        const tokenData = doc.data();
-        if (tokenData.token) {
-          tokens.push(tokenData.token);
-        }
+      // إرسال إشعار فوري
+      await db.collection('notifications').add({
+        userId: appointmentData.assignedToUid,
+        title: 'موعد جديد',
+        message: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA')}`,
+        type: 'appointment_created',
+        appointmentId: appointmentId,
+        isRead: false,
+        createdAt: admin.firestore.Timestamp.now()
       });
 
-      if (tokens.length === 0) {
-        console.log('لا توجد توكنات صالحة');
-        return null;
-      }
+      // جدولة تنبيه قبل الموعد بساعة
+      const appointmentTime = appointmentData.when.toDate();
+      const reminderTime = new Date(appointmentTime.getTime() - 60 * 60 * 1000); // قبل ساعة
 
-      // إعداد رسالة الإشعار
-      const message = {
-        notification: {
-          title: 'موعد جديد',
-          body: `تم إضافة موعد جديد: ${appointmentData.title}`,
-        },
-        data: {
+      if (reminderTime > new Date()) {
+        await db.collection('scheduledNotifications').add({
+          userId: appointmentData.assignedToUid,
+          title: 'تذكير بالموعد',
+          message: `موعدك القادم: "${appointmentData.title}" في الساعة ${appointmentTime.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`,
+          type: 'appointment_reminder',
           appointmentId: appointmentId,
-          type: 'new_appointment',
-          title: appointmentData.title,
-          when: appointmentData.when.toDate().toISOString(),
-        },
-        tokens: tokens,
-      };
-
-      // إرسال الإشعار
-      const response = await messaging.sendMulticast(message);
-      
-      console.log(`تم إرسال ${response.successCount} إشعار من أصل ${tokens.length}`);
-
-      // حذف التوكنات غير الصالحة
-      if (response.failureCount > 0) {
-        const failedTokens: string[] = [];
-        response.responses.forEach((resp, idx) => {
-          if (!resp.success) {
-            failedTokens.push(tokens[idx]);
-          }
+          isRead: false,
+          createdAt: admin.firestore.Timestamp.now(),
+          scheduledFor: admin.firestore.Timestamp.fromDate(reminderTime),
+          isSent: false
         });
-
-        // حذف التوكنات الفاشلة من Firestore
-        for (const failedToken of failedTokens) {
-          const failedTokenDocs = await db
-            .collection('deviceTokens')
-            .where('token', '==', failedToken)
-            .get();
-
-          failedTokenDocs.forEach(doc => {
-            doc.ref.delete();
-          });
-        }
-
-        console.log(`تم حذف ${failedTokens.length} توكن غير صالح`);
       }
 
-      return { success: true, sentCount: response.successCount };
+      console.log('تم إرسال إشعارات الموعد الجديد');
+      return null;
     } catch (error) {
-      console.error('خطأ في إرسال الإشعار:', error);
-      return { success: false, error: error.message };
+      console.error('فشل في إرسال إشعارات الموعد:', error);
+      return null;
     }
   });
 

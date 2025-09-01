@@ -3,12 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { LogOut, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useNotificationStore } from '../store/notificationStore';
+import NotificationBell from './NotificationBell';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuthStore();
-  const { enabled, requestPermission } = useNotificationStore();
+  const { setupPushNotifications } = useNotificationStore();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [pushNotificationsEnabled, setPushNotificationsEnabled] = React.useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -76,19 +78,29 @@ const Header: React.FC = () => {
 
           {/* الأزرار الجانبية */}
           <div className="flex items-center space-x-4 space-x-reverse">
-            {/* زر الإشعارات */}
+            {/* جرس الإشعارات */}
+            {user && <NotificationBell />}
+
+            {/* زر تفعيل إشعارات المتصفح */}
             {user && (
               <button
-                onClick={requestPermission}
+                onClick={async () => {
+                  try {
+                    await setupPushNotifications();
+                    setPushNotificationsEnabled(true);
+                  } catch (error) {
+                    console.error('فشل في تفعيل إشعارات المتصفح:', error);
+                  }
+                }}
                 className={`p-2 rounded-lg transition-colors ${
-                  enabled
+                  pushNotificationsEnabled
                     ? 'bg-green-100 text-green-700 hover:bg-green-200'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
-                title={enabled ? 'الإشعارات مفعلة' : 'تفعيل الإشعارات'}
+                title={pushNotificationsEnabled ? 'إشعارات المتصفح مفعلة' : 'تفعيل إشعارات المتصفح'}
               >
                 <span className="text-sm">
-                  {enabled ? '🔔' : '🔕'}
+                  {pushNotificationsEnabled ? '🔔' : '🔕'}
                 </span>
               </button>
             )}

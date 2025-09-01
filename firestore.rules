@@ -56,5 +56,21 @@ service cloud.firestore {
       allow create, update, delete: if isSignedIn() && request.resource.data.uid == request.auth.uid;
       allow read: if false;
     }
+
+    // notifications: السماح للمستخدم بقراءة إشعاراته وإنشاؤها
+    match /notifications/{docId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn(); // السماح بإنشاء الإشعارات من العميل
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // scheduledNotifications: السماح للمستخدم بقراءة إشعاراته المجدولة فقط
+    match /scheduledNotifications/{docId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if false; // يتم إنشاؤها من Cloud Functions فقط
+      allow update: if false; // يتم تحديثها من Cloud Functions فقط
+      allow delete: if false;
+    }
   }
 }

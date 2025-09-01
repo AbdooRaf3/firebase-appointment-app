@@ -6,11 +6,13 @@ import { db } from '../../firebase/firebaseClient';
 import { User as UserType } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
+import { useNotificationStore } from '../../store/notificationStore';
 
 const NewAppointment: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
+  const { sendNotification, scheduleNotification } = useNotificationStore();
   
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserType[]>([]);
@@ -92,7 +94,31 @@ const NewAppointment: React.FC = () => {
         status: 'pending'
       };
 
-      await addDoc(collection(db, 'appointments'), newAppointment);
+      const appointmentRef = await addDoc(collection(db, 'appointments'), newAppointment);
+      
+      // إرسال إشعار فوري لرئيس البلدية
+      const assignedUser = users.find(u => u.uid === formData.assignedToUid);
+      if (assignedUser) {
+        await sendNotification({
+          userId: formData.assignedToUid,
+          title: 'موعد جديد',
+          message: `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA')}`,
+          type: 'appointment_created',
+          appointmentId: appointmentRef.id
+        });
+
+        // جدولة تنبيه قبل الموعد بساعة
+        const reminderTime = new Date(selectedDate.getTime() - 60 * 60 * 1000); // قبل ساعة
+        if (reminderTime > new Date()) {
+          await scheduleNotification({
+            userId: formData.assignedToUid,
+            title: 'تذكير بالموعد',
+            message: `موعدك القادم: "${formData.title}" في الساعة ${selectedDate.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`,
+            type: 'appointment_reminder',
+            appointmentId: appointmentRef.id
+          }, reminderTime);
+        }
+      }
       
       addToast({
         type: 'success',
