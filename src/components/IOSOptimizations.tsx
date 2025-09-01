@@ -1,8 +1,5 @@
 import React, { useEffect } from 'react';
-
-interface IOSOptimizationsProps {
-  children: React.ReactNode;
-}
+import type { IOSOptimizationsProps } from '../types/mobile';
 
 const IOSOptimizations: React.FC<IOSOptimizationsProps> = ({ children }) => {
   useEffect(() => {
@@ -14,7 +11,7 @@ const IOSOptimizations: React.FC<IOSOptimizationsProps> = ({ children }) => {
       document.documentElement.classList.add('ios-device');
       
       // تحسين التمرير
-      document.body.style.webkitOverflowScrolling = 'touch';
+      (document.body.style as any)['-webkit-overflow-scrolling'] = 'touch';
       
       // منع التكبير
       const viewport = document.querySelector('meta[name="viewport"]');
@@ -23,35 +20,35 @@ const IOSOptimizations: React.FC<IOSOptimizationsProps> = ({ children }) => {
       }
       
       // تحسين الأداء
-      document.body.style.webkitTransform = 'translateZ(0)';
+      (document.body.style as any)['-webkit-transform'] = 'translateZ(0)';
       document.body.style.transform = 'translateZ(0)';
       
       // منع التمرير المرن
       document.body.style.overscrollBehavior = 'none';
       
       // تحسين النصوص
-      document.body.style.webkitFontSmoothing = 'antialiased';
-      document.body.style.mozOsxFontSmoothing = 'grayscale';
+      (document.body.style as any)['-webkit-font-smoothing'] = 'antialiased';
+      (document.body.style as any)['-moz-osx-font-smoothing'] = 'grayscale';
       
       // منع التحديد
-      document.body.style.webkitUserSelect = 'none';
+      (document.body.style as any)['-webkit-user-select'] = 'none';
       document.body.style.userSelect = 'none';
       
       // تحسين التفاعل باللمس
-      document.body.style.webkitTapHighlightColor = 'transparent';
+      (document.body.style as any)['-webkit-tap-highlight-color'] = 'transparent';
       
       // إضافة event listeners خاصة بـ iOS
-      const handleTouchStart = (e: TouchEvent) => {
+      const handleTouchStart = (e: Event) => {
         // تحسين التفاعل باللمس
         if (e.target instanceof HTMLElement) {
-          e.target.style.webkitTransform = 'scale(0.98)';
+          (e.target.style as any)['-webkit-transform'] = 'scale(0.98)';
         }
       };
       
-      const handleTouchEnd = (e: TouchEvent) => {
+      const handleTouchEnd = (e: Event) => {
         // إعادة الحجم الطبيعي
         if (e.target instanceof HTMLElement) {
-          e.target.style.webkitTransform = 'scale(1)';
+          (e.target.style as any)['-webkit-transform'] = 'scale(1)';
         }
       };
       

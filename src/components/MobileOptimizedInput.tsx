@@ -1,20 +1,5 @@
 import React from 'react';
-
-interface MobileOptimizedInputProps {
-  label?: string;
-  placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
-  required?: boolean;
-  disabled?: boolean;
-  error?: string;
-  helperText?: string;
-  className?: string;
-  icon?: React.ReactNode;
-  onFocus?: () => void;
-  onBlur?: () => void;
-}
+import type { MobileOptimizedInputProps } from '../types/mobile';
 
 const MobileOptimizedInput: React.FC<MobileOptimizedInputProps> = ({
   label,

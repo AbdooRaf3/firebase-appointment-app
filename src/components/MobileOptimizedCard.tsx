@@ -1,11 +1,5 @@
 import React from 'react';
-
-interface MobileOptimizedCardProps {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-  isInteractive?: boolean;
-}
+import type { MobileOptimizedCardProps } from '../types/mobile';
 
 const MobileOptimizedCard: React.FC<MobileOptimizedCardProps> = ({
   children,

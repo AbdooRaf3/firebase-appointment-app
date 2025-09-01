@@ -1,16 +1,5 @@
 import React from 'react';
-
-interface MobileOptimizedButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
-  size?: 'small' | 'medium' | 'large';
-  disabled?: boolean;
-  fullWidth?: boolean;
-  className?: string;
-  type?: 'button' | 'submit' | 'reset';
-  icon?: React.ReactNode;
-}
+import type { MobileOptimizedButtonProps } from '../types/mobile';
 
 const MobileOptimizedButton: React.FC<MobileOptimizedButtonProps> = ({
   children,

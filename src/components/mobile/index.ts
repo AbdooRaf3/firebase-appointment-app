@@ -5,9 +5,12 @@ export { default as MobileOptimizedInput } from '../MobileOptimizedInput';
 export { default as MobileOptimizedSelect } from '../MobileOptimizedSelect';
 export { default as IOSOptimizations } from '../IOSOptimizations';
 
-// تصدير الأنواع
-export type { MobileOptimizedCardProps } from '../MobileOptimizedCard';
-export type { MobileOptimizedButtonProps } from '../MobileOptimizedButton';
-export type { MobileOptimizedInputProps } from '../MobileOptimizedInput';
-export type { MobileOptimizedSelectProps } from '../MobileOptimizedSelect';
-export type { IOSOptimizationsProps } from '../IOSOptimizations';
+// تصدير الأنواع من الملف المشترك
+export type {
+  MobileOptimizedCardProps,
+  MobileOptimizedButtonProps,
+  MobileOptimizedInputProps,
+  MobileOptimizedSelectProps,
+  IOSOptimizationsProps,
+  Option
+} from '../../types/mobile';

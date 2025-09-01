@@ -1,24 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-interface Option {
-  value: string;
-  label: string;
-  disabled?: boolean;
-}
-
-interface MobileOptimizedSelectProps {
-  label?: string;
-  options: Option[];
-  value?: string;
-  onChange?: (value: string) => void;
-  placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
-  error?: string;
-  helperText?: string;
-  className?: string;
-  icon?: React.ReactNode;
-}
+import type { MobileOptimizedSelectProps, Option } from '../types/mobile';
 
 const MobileOptimizedSelect: React.FC<MobileOptimizedSelectProps> = ({
   label,

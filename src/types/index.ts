@@ -1,3 +1,6 @@
+// تصدير جميع الأنواع
+export * from './mobile';
+
 export interface User {
   uid: string;
   email: string;
