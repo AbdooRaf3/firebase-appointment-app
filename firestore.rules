@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // قراءة دور المستخدم من وثيقة users
+    function userRole(uid) {
+      return (exists(/databases/$(database)/documents/users/$(uid))
+              ? get(/databases/$(database)/documents/users/$(uid)).data.role
+              : null);
+    }
+    function isSignedIn() { return request.auth != null; }
+
+    // users collection: يسمح للمدير بإدارة وقراءة الجميع، والمستخدم بتعديل ملفه
+    match /users/{uid} {
+      allow create: if isSignedIn() && userRole(request.auth.uid) == 'admin';
+      allow read: if isSignedIn() && (userRole(request.auth.uid) == 'admin' || request.auth.uid == uid);
+      allow update: if isSignedIn() && (userRole(request.auth.uid) == 'admin' || request.auth.uid == uid);
+      allow delete: if isSignedIn() && userRole(request.auth.uid) == 'admin';
+    }
+
+    // appointments collection
+    match /appointments/{id} {
+      // القراءة الفردية: المدير يقرأ كل شيء، السكرتير يرى ما أنشأه، ورئيس البلدية يرى ما كُلف به
+      allow get: if isSignedIn() && (
+        userRole(request.auth.uid) == 'admin' ||
+        resource.data.createdByUid == request.auth.uid ||
+        resource.data.assignedToUid == request.auth.uid
+      );
+
+      // لسرد/استعلام (list/query): للسِلكية السهلة نسمح للمدير فقط بشكل افتراضي.
+      // (ملاحظة: يمكنك تحسين قواعد الاستعلام للسماح للمستخدمين بعمل where مقيد على الحقل المناسب)
+      allow list: if isSignedIn() && userRole(request.auth.uid) == 'admin';
+
+      // الإنشاء: السكرتير أو المدير فقط
+      allow create: if isSignedIn() && (userRole(request.auth.uid) in ['secretary','admin']);
+
+      // التعديل: المدير والسكرتير يمكنهم تعديل (عمليًا كل الحقول)،
+      // أما رئيس البلدية (mayor) فيسمح له بتعديل حالة الموعد فقط.
+      allow update: if isSignedIn() && (
+        // مدير/سكرتير: تعديل كامل
+        (userRole(request.auth.uid) in ['secretary','admin']) ||
+        // رئيس البلدية: يسمح بتعديل الحقل 'status' فقط
+        (userRole(request.auth.uid) == 'mayor' &&
+          request.resource.data.diff(resource.data).changedKeys().hasOnly(['status']))
+      );
+
+      // الحذف: المدير أو السكرتير
+      allow delete: if isSignedIn() && (userRole(request.auth.uid) in ['secretary','admin']);
+    }
+
+    // deviceTokens: السماح للمستخدم بإنشاء/تحديث/حذف توكنه فقط، لا قراءة عامة
+    match /deviceTokens/{docId} {
+      allow create, update, delete: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if false;
+    }
+  }
+}
