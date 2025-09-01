@@ -21,6 +21,7 @@ interface NotificationStore {
   unreadCount: number;
   isLoading: boolean;
   error: string | null;
+  pushNotificationsEnabled: boolean; // حالة تفعيل الإشعارات
   
   // إرسال إشعار
   sendNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => Promise<void>;
@@ -40,6 +41,12 @@ interface NotificationStore {
   // إعداد إشعارات المتصفح
   setupPushNotifications: () => Promise<void>;
   
+  // فحص حالة الإشعارات
+  checkNotificationPermission: () => Promise<boolean>;
+  
+  // اختبار الإشعارات
+  testNotification: () => void;
+  
   // تنظيف
   clearNotifications: () => void;
 }
@@ -49,6 +56,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   unreadCount: 0,
   isLoading: false,
   error: null,
+  pushNotificationsEnabled: false, // حالة تفعيل الإشعارات
 
   sendNotification: async (notification) => {
     try {
@@ -167,23 +175,56 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     }
   },
 
+  checkNotificationPermission: async () => {
+    try {
+      // فحص إذن الإشعارات
+      if (!('Notification' in window)) {
+        console.log('المتصفح لا يدعم الإشعارات');
+        return false;
+      }
+
+      const permission = Notification.permission;
+      console.log('حالة إذن الإشعارات:', permission);
+      
+      if (permission === 'granted') {
+        set({ pushNotificationsEnabled: true });
+        return true;
+      } else if (permission === 'default') {
+        // طلب الإذن
+        const newPermission = await Notification.requestPermission();
+        if (newPermission === 'granted') {
+          set({ pushNotificationsEnabled: true });
+          return true;
+        }
+      }
+      
+      set({ pushNotificationsEnabled: false });
+      return false;
+    } catch (error: any) {
+      console.error('فشل في فحص إذن الإشعارات:', error);
+      return false;
+    }
+  },
+
   setupPushNotifications: async () => {
     try {
-      const messaging = getMessaging();
-      
-      // طلب إذن الإشعارات
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        console.log('تم رفض إذن الإشعارات');
+      // فحص إذن الإشعارات أولاً
+      const hasPermission = await get().checkNotificationPermission();
+      if (!hasPermission) {
+        console.log('لم يتم منح إذن الإشعارات');
         return;
       }
 
+      const messaging = getMessaging();
+      
       // الحصول على توكن الإشعارات
       const token = await getToken(messaging, {
         vapidKey: 'YOUR_VAPID_KEY' // يجب استبدالها بمفتاح VAPID الخاص بك
       });
 
       if (token) {
+        console.log('تم الحصول على توكن الإشعارات:', token);
+        
         // حفظ التوكن في Firestore
         const auth = getAuth();
         if (auth.currentUser) {
@@ -192,6 +233,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
             token: token,
             createdAt: serverTimestamp()
           });
+          console.log('تم حفظ توكن الإشعارات في Firestore');
         }
       }
 
@@ -201,16 +243,42 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         
         // عرض الإشعار في المتصفح
         if (payload.notification) {
-          new Notification(payload.notification.title || 'إشعار جديد', {
-            body: payload.notification.body,
-            icon: '/icons/icon-192x192.png'
-          });
+                  new Notification(payload.notification.title || 'إشعار جديد', {
+          body: payload.notification.body,
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
+          tag: 'appointment-notification',
+          requireInteraction: true
+        });
         }
       });
 
+      // تحديث حالة الإشعارات
+      set({ pushNotificationsEnabled: true });
+      console.log('تم تفعيل إشعارات المتصفح بنجاح');
+
     } catch (error: any) {
       console.error('فشل في إعداد إشعارات المتصفح:', error);
-      set({ error: error.message });
+      set({ error: error.message, pushNotificationsEnabled: false });
+    }
+  },
+
+  testNotification: () => {
+    try {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('اختبار الإشعارات', {
+          body: 'هذا إشعار تجريبي للتأكد من عمل الإشعارات',
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
+          tag: 'test-notification',
+          requireInteraction: true
+        });
+        console.log('تم إرسال إشعار تجريبي');
+      } else {
+        console.log('الإشعارات غير مفعلة');
+      }
+    } catch (error: any) {
+      console.error('فشل في إرسال إشعار تجريبي:', error);
     }
   },
 

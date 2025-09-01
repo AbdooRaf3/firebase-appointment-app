@@ -7,10 +7,16 @@ import NotificationBell from './NotificationBell';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuthStore();
-  const { setupPushNotifications } = useNotificationStore();
+  const { setupPushNotifications, checkNotificationPermission, pushNotificationsEnabled, testNotification } = useNotificationStore();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [pushNotificationsEnabled, setPushNotificationsEnabled] = React.useState(false);
+
+  // فحص حالة الإشعارات عند تحميل المكون
+  React.useEffect(() => {
+    if (user) {
+      checkNotificationPermission();
+    }
+  }, [user, checkNotificationPermission]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -86,8 +92,13 @@ const Header: React.FC = () => {
               <button
                 onClick={async () => {
                   try {
-                    await setupPushNotifications();
-                    setPushNotificationsEnabled(true);
+                    if (pushNotificationsEnabled) {
+                      // إذا كانت مفعلة، اعرض رسالة
+                      console.log('الإشعارات مفعلة بالفعل');
+                    } else {
+                      // إذا لم تكن مفعلة، قم بتفعيلها
+                      await setupPushNotifications();
+                    }
                   } catch (error) {
                     console.error('فشل في تفعيل إشعارات المتصفح:', error);
                   }
@@ -102,6 +113,17 @@ const Header: React.FC = () => {
                 <span className="text-sm">
                   {pushNotificationsEnabled ? '🔔' : '🔕'}
                 </span>
+              </button>
+            )}
+
+            {/* زر اختبار الإشعارات */}
+            {user && pushNotificationsEnabled && (
+              <button
+                onClick={() => testNotification()}
+                className="p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors"
+                title="اختبار الإشعارات"
+              >
+                <span className="text-sm">🧪</span>
               </button>
             )}
 
