@@ -31,8 +31,8 @@ isSupported().then((supported) => {
   }
 });
 
-// ربط Emulators في بيئة التطوير
-if (import.meta.env.DEV) {
+// ربط Emulators في بيئة التطوير فقط
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
   // ربط Auth Emulator
   try {
     connectAuthEmulator(auth, 'http://localhost:9099');
