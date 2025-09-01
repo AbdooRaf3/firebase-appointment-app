@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
@@ -176,9 +175,6 @@ const MayorDashboard: React.FC = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stats-grid">
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
               <p className="text-2xl font-bold text-gray-900">{appointments.length}</p>
@@ -188,9 +184,6 @@ const MayorDashboard: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <AlertCircle className="w-6 h-6 text-yellow-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">في الانتظار</p>
               <p className="text-2xl font-bold text-gray-900">{getStatusCount('pending')}</p>
@@ -200,9 +193,6 @@ const MayorDashboard: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">مكتمل</p>
               <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
@@ -212,9 +202,6 @@ const MayorDashboard: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Clock className="w-6 h-6 text-purple-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">اليوم</p>
               <p className="text-2xl font-bold text-gray-900">{getTodayCount()}</p>
@@ -273,7 +260,6 @@ const MayorDashboard: React.FC = () => {
       <div className="space-y-4">
         {filteredAppointments.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
-            <Calendar className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد مواعيد</h3>
             <p className="mt-1 text-sm text-gray-500">
               {filter === 'all' 

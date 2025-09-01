@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Edit, Trash2, UserPlus, Search } from 'lucide-react';
 import { collection, getDocs, doc, deleteDoc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseClient';
 import { User } from '../../types';
@@ -50,7 +49,7 @@ const UsersManagement: React.FC = () => {
     } catch (error: any) {
       addToast({
         type: 'error',
-        message: 'فشل في تحميل المستخدمين: ' + error.message
+        message: 'فشل في تحميل المستخدمين'
       });
     } finally {
       setLoading(false);
@@ -197,28 +196,24 @@ const UsersManagement: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">إدارة المستخدمين</h1>
           <p className="text-gray-600">إضافة وتعديل وحذف المستخدمين في النظام</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="btn-primary flex items-center space-x-2 space-x-reverse"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>إضافة مستخدم</span>
-        </button>
+                 <button
+           onClick={() => setShowAddForm(true)}
+           className="btn-primary"
+         >
+           إضافة مستخدم
+         </button>
       </div>
 
-      {/* شريط البحث */}
-      <div className="relative">
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type="text"
-          placeholder="البحث في المستخدمين..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-input pr-10"
-        />
-      </div>
+             {/* شريط البحث */}
+       <div className="relative">
+         <input
+           type="text"
+           placeholder="البحث في المستخدمين..."
+           value={searchTerm}
+           onChange={(e) => setSearchTerm(e.target.value)}
+           className="form-input"
+         />
+       </div>
 
       {/* نموذج إضافة/تعديل مستخدم */}
       {showAddForm && (
@@ -259,6 +254,7 @@ const UsersManagement: React.FC = () => {
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
                   className="form-input"
+                  title="اختر الدور"
                 >
                   <option value="secretary">سكرتير</option>
                   <option value="mayor">رئيس البلدية</option>
@@ -350,20 +346,22 @@ const UsersManagement: React.FC = () => {
                     {user.createdAt.toLocaleDateString('ar-SA')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2 space-x-reverse">
-                      <button
-                        onClick={() => startEdit(user)}
-                        className="text-primary-600 hover:text-primary-900"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setDeleteUser(user)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                                         <div className="flex items-center space-x-2 space-x-reverse">
+                       <button
+                         onClick={() => startEdit(user)}
+                         className="text-primary-600 hover:text-primary-900 px-2 py-1 rounded text-sm"
+                         title="تعديل"
+                       >
+                         تعديل
+                       </button>
+                       <button
+                         onClick={() => setDeleteUser(user)}
+                         className="text-red-600 hover:text-red-900 px-2 py-1 rounded text-sm"
+                         title="حذف"
+                       >
+                         حذف
+                       </button>
+                     </div>
                   </td>
                 </tr>
               ))}

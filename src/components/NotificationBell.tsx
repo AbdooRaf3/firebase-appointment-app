@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, X, CheckCircle, Trash2 } from 'lucide-react';
 import { useNotificationStore } from '../store/notificationStore';
 import { useAuthStore } from '../store/authStore';
 
@@ -25,10 +24,8 @@ const NotificationBell: React.FC = () => {
   // تحميل الإشعارات
   useEffect(() => {
     if (user) {
-      console.log('🔄 بدء تحميل الإشعارات للمستخدم:', user.uid);
       try {
         const unsubscribe = loadNotifications(user.uid);
-        console.log('✅ تم إعداد مراقب الإشعارات:', unsubscribe);
         return unsubscribe;
       } catch (error) {
         console.error('❌ فشل في تحميل الإشعارات:', error);
@@ -44,7 +41,6 @@ const NotificationBell: React.FC = () => {
         !dropdownRef.current.contains(event.target as Node) &&
         !buttonRef.current?.contains(event.target as Node)
       ) {
-        console.log('🔄 إغلاق القائمة - ضغط خارج');
         setIsOpen(false);
       }
     };
@@ -64,38 +60,28 @@ const NotificationBell: React.FC = () => {
 
       const newPosition = buttonRect.right + dropdownWidth <= viewportWidth ? 'right' : 'left';
       setDropdownPosition(newPosition);
-      console.log('📍 موضع القائمة:', newPosition, 'buttonRect:', buttonRect);
     }
   }, []);
 
   const handleToggleDropdown = useCallback(() => {
-    console.log('🔄 الضغط على الجرس - الحالة الحالية:', isOpen);
-    
     if (!isOpen) {
       calculateDropdownPosition();
     }
     
     const newState = !isOpen;
-    console.log('🔄 تغيير الحالة إلى:', newState);
     setIsOpen(newState);
-    
-    // تحديث معلومات التشخيص
-    setDebugInfo(`isOpen: ${newState} | Count: ${notifications.length} | Loading: ${isLoading} | Error: ${error || 'none'}`);
-  }, [isOpen, calculateDropdownPosition, notifications.length, isLoading, error]);
+  }, [isOpen, calculateDropdownPosition]);
 
   // دوال مساعدة
   const handleMarkAsRead = useCallback(async (notificationId: string) => {
-    console.log('📖 تمييز كقراءة:', notificationId);
     await markAsRead(notificationId);
   }, [markAsRead]);
 
   const handleDelete = useCallback(async (notificationId: string) => {
-    console.log('🗑️ حذف الإشعار:', notificationId);
     await deleteNotification(notificationId);
   }, [deleteNotification]);
 
   const handleMarkAllAsRead = useCallback(async () => {
-    console.log('📖 تمييز جميع الإشعارات كقراءة');
     for (const notification of notifications) {
       if (!notification.isRead) {
         await markAsRead(notification.id!);
@@ -104,7 +90,6 @@ const NotificationBell: React.FC = () => {
   }, [notifications, markAsRead]);
 
   const handleDeleteAll = useCallback(async () => {
-    console.log('🗑️ حذف جميع الإشعارات');
     for (const notification of notifications) {
       await deleteNotification(notification.id!);
     }
@@ -161,13 +146,13 @@ const NotificationBell: React.FC = () => {
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">الإشعارات</h3>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-              title="إغلاق"
-            >
-              <X className="w-5 h-5" />
-            </button>
+                         <button
+               onClick={() => setIsOpen(false)}
+               className="text-gray-400 hover:text-gray-600 transition-colors px-2 py-1 rounded text-sm"
+               title="إغلاق"
+             >
+               ✕
+             </button>
           </div>
           {unreadCount > 0 && (
             <p className="text-sm text-gray-600 mt-1">{unreadCount} غير مقروء</p>
@@ -176,20 +161,17 @@ const NotificationBell: React.FC = () => {
 
         {/* محتوى الإشعارات */}
         <div className="p-2">
-          {isLoading ? (
-            <div className="text-center py-8 text-gray-500">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p>جاري التحميل...</p>
-            </div>
+                     {isLoading ? (
+             <div className="text-center py-8 text-gray-500">
+               <p>جاري التحميل...</p>
+             </div>
           ) : error ? (
             <div className="text-center py-8 text-red-500">
-              <div className="text-2xl mb-2">⚠️</div>
               <p>فشل في تحميل الإشعارات</p>
               <p className="text-sm text-gray-500 mt-1">{error}</p>
             </div>
           ) : notifications.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              <Bell className="w-12 h-12 mx-auto text-gray-300 mb-2" />
               <p>لا توجد إشعارات</p>
             </div>
           ) : (
@@ -202,9 +184,6 @@ const NotificationBell: React.FC = () => {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3 space-x-reverse">
-                    <span className="text-2xl">
-                      {getNotificationIcon(notification.type)}
-                    </span>
                     <div className="flex-1">
                       <h4 className="font-medium text-gray-900 text-sm">
                         {notification.title}
@@ -225,7 +204,7 @@ const NotificationBell: React.FC = () => {
                         className="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded transition-colors"
                         title="تمييز كقراءة"
                       >
-                        <CheckCircle className="w-4 h-4" />
+                        ✓
                       </button>
                     )}
                     <button
@@ -233,7 +212,7 @@ const NotificationBell: React.FC = () => {
                       className="text-xs text-red-600 hover:text-red-800 px-2 py-1 rounded transition-colors"
                       title="حذف"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      ×
                     </button>
                   </div>
                 </div>
@@ -247,13 +226,13 @@ const NotificationBell: React.FC = () => {
           <div className="p-3 border-t border-gray-200 flex justify-between">
             <button
               onClick={handleMarkAllAsRead}
-              className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+              className="text-sm text-blue-600 hover:text-blue-800 transition-colors px-3 py-1 rounded border border-blue-200 hover:bg-blue-50"
             >
               تمييز جميعها كقراءة
             </button>
             <button
               onClick={handleDeleteAll}
-              className="text-sm text-red-600 hover:text-red-800 transition-colors"
+              className="text-sm text-red-600 hover:text-red-800 transition-colors px-3 py-1 rounded border border-red-200 hover:bg-red-50"
             >
               حذف جميعها
             </button>
@@ -277,21 +256,21 @@ const NotificationBell: React.FC = () => {
         title="الإشعارات"
         disabled={isLoading}
       >
-        <Bell className={`w-6 h-6 ${isLoading ? 'animate-pulse' : ''} ${isOpen ? 'animate-bounce' : ''}`} />
+                 <span className={`text-lg font-bold ${isLoading ? 'animate-pulse' : ''} ${isOpen ? 'animate-bounce' : ''}`}>🔔</span>
         
-        {/* مؤشر الإشعارات غير المقروءة */}
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-        
-        {/* مؤشر الخطأ */}
-        {error && (
-          <span className="absolute -top-1 -left-1 bg-yellow-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-            ⚠️
-          </span>
-        )}
+                 {/* مؤشر الإشعارات غير المقروءة */}
+         {unreadCount > 0 && (
+           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+             {unreadCount > 9 ? '9+' : unreadCount}
+           </span>
+         )}
+         
+         {/* مؤشر الخطأ */}
+         {error && (
+           <span className="absolute -top-1 -left-1 bg-yellow-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+             !
+           </span>
+         )}
       </button>
 
       {/* القائمة */}

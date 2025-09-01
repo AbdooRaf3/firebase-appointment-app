@@ -229,7 +229,7 @@ const App: React.FC = () => {
               path="/" 
               element={
                 <ProtectedRoute>
-                  <Navigate to="/dashboard" replace />
+                  <DashboardRedirect />
                 </ProtectedRoute>
               } 
             />

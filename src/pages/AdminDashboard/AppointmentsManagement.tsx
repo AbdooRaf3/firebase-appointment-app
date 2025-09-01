@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Calendar } from 'lucide-react';
 import { collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseClient';
 import { Appointment, User } from '../../types';
@@ -147,9 +146,6 @@ const AppointmentsManagement: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
               <p className="text-2xl font-bold text-gray-900">{appointments.length}</p>
@@ -159,9 +155,6 @@ const AppointmentsManagement: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-yellow-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">في الانتظار</p>
               <p className="text-2xl font-bold text-gray-900">{getStatusCount('pending')}</p>
@@ -171,9 +164,6 @@ const AppointmentsManagement: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-green-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">مكتمل</p>
               <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
@@ -183,9 +173,6 @@ const AppointmentsManagement: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-red-600" />
-            </div>
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">ملغي</p>
               <p className="text-2xl font-bold text-gray-900">{getStatusCount('cancelled')}</p>
@@ -199,27 +186,22 @@ const AppointmentsManagement: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* البحث */}
           <div className="relative">
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
             <input
               type="text"
               placeholder="البحث في المواعيد..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-input pr-10"
+              className="form-input"
             />
           </div>
           
           {/* تصفية الحالة */}
           <div className="relative">
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <Filter className="h-5 w-5 text-gray-400" />
-            </div>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-input pr-10"
+              className="form-input"
+              title="تصفية حسب الحالة"
             >
               <option value="all">جميع الحالات</option>
               <option value="pending">في الانتظار</option>
@@ -234,7 +216,6 @@ const AppointmentsManagement: React.FC = () => {
       <div className="space-y-4">
         {filteredAppointments.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
-            <Calendar className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد مواعيد</h3>
             <p className="mt-1 text-sm text-gray-500">
               {searchTerm || statusFilter !== 'all' 
