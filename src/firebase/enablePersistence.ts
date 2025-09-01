@@ -1,23 +1,19 @@
-import { enableIndexedDbPersistence, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
+import { enableIndexedDbPersistence } from 'firebase/firestore';
 import { db } from './firebaseClient';
 
-// تمكين persistence مع دعم Multi-tab
+// تمكين persistence باستخدام الطريقة الموصى بها
 export const enableFirestorePersistence = async () => {
   try {
-    // محاولة تمكين persistence مع دعم Multi-tab
-    await enableMultiTabIndexedDbPersistence(db);
-    console.log('تم تمكين Firestore persistence مع دعم Multi-tab');
+    // استخدام الطريقة الموصى بها
+    await enableIndexedDbPersistence(db);
+    console.log('تم تمكين Firestore persistence بنجاح');
   } catch (error: any) {
     if (error.code === 'failed-precondition') {
-      // إذا فشل Multi-tab، جرب persistence العادي
-      try {
-        await enableIndexedDbPersistence(db);
-        console.log('تم تمكين Firestore persistence العادي');
-      } catch (persistenceError) {
-        console.warn('فشل في تمكين Firestore persistence:', persistenceError);
-      }
+      console.warn('Firestore persistence مُمكّن بالفعل في تبويب آخر');
     } else if (error.code === 'unimplemented') {
       console.warn('المتصفح لا يدعم IndexedDB persistence');
+    } else {
+      console.warn('فشل في تمكين Firestore persistence:', error);
     }
   }
 };

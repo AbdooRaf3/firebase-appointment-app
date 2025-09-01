@@ -17,7 +17,7 @@ const NotificationBell: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<'left' | 'right'>('right');
-  const [debugInfo, setDebugInfo] = useState<string>('');
+
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -151,24 +151,11 @@ const NotificationBell: React.FC = () => {
     }
   }, []);
 
-  // تحديث معلومات التشخيص
-  useEffect(() => {
-    setDebugInfo(`isOpen: ${isOpen} | Count: ${notifications.length} | Loading: ${isLoading} | Error: ${error || 'none'}`);
-  }, [isOpen, notifications.length, isLoading, error]);
+
 
   const renderNotificationContent = useCallback(() => {
-    console.log('🎨 renderNotificationContent() - notifications:', notifications);
-    console.log('🎨 renderNotificationContent() - isLoading:', isLoading);
-    console.log('🎨 renderNotificationContent() - error:', error);
-    console.log('🎨 renderNotificationContent() - isOpen:', isOpen);
-    console.log('🎨 renderNotificationContent() - dropdownPosition:', dropdownPosition);
-    
     return (
       <>
-        {/* مؤشر تشخيص */}
-        <div className="p-2 bg-yellow-100 border-b border-yellow-300 text-xs text-yellow-800">
-          🔍 DEBUG: renderNotificationContent() - notifications.length = {notifications.length} | isLoading = {isLoading.toString()} | error = {error || 'none'} | isOpen = {isOpen.toString()}
-        </div>
         
         {/* رأس القائمة */}
         <div className="p-4 border-b border-gray-200">
@@ -177,6 +164,7 @@ const NotificationBell: React.FC = () => {
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-400 hover:text-gray-600 transition-colors"
+              title="إغلاق"
             >
               <X className="w-5 h-5" />
             </button>
@@ -306,25 +294,9 @@ const NotificationBell: React.FC = () => {
         )}
       </button>
 
-      {/* مؤشر حالة القائمة */}
-      <div className="absolute top-full left-0 mt-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded z-50">
-        🔍 DEBUG: {debugInfo}
-      </div>
-      
-      {/* مؤشر القائمة */}
-      {isOpen && (
-        <div className="absolute top-full left-0 mt-8 text-xs text-gray-500 bg-red-100 px-2 py-1 rounded border border-red-300 z-50">
-          🔍 DEBUG: القائمة مفتوحة - notifications.length = {notifications.length} | dropdownPosition = {dropdownPosition}
-        </div>
-      )}
-      
       {/* القائمة */}
       {isOpen && (
         <>
-          {/* مؤشر تشخيص القائمة */}
-          <div className="fixed top-0 left-0 bg-green-500 text-white p-2 text-xs z-[9999]">
-            🎯 القائمة مفتوحة - isOpen = {isOpen.toString()}
-          </div>
           
           {/* للموبايل */}
           <div className="fixed inset-0 z-40 md:hidden bg-black/20" />
@@ -332,12 +304,6 @@ const NotificationBell: React.FC = () => {
             <div
               ref={dropdownRef}
               className="w-full max-w-sm bg-white rounded-lg shadow-xl border border-gray-200 max-h-[80vh] overflow-y-auto"
-              style={{ 
-                border: '3px solid blue',
-                backgroundColor: 'white',
-                position: 'relative',
-                zIndex: 9999
-              }}
             >
               {renderNotificationContent()}
             </div>
@@ -346,16 +312,9 @@ const NotificationBell: React.FC = () => {
           {/* للكمبيوتر */}
           <div
             ref={dropdownRef}
-            className={`hidden md:block absolute mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999] max-h-96 overflow-y-auto transition-all duration-200 ${
+            className={`hidden md:block absolute mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto transition-all duration-200 ${
               dropdownPosition === 'right' ? 'right-0' : 'left-0'
             }`}
-            style={{ 
-              border: '3px solid red',
-              backgroundColor: 'white',
-              position: 'absolute',
-              top: '100%',
-              marginTop: '8px'
-            }}
           >
             {renderNotificationContent()}
           </div>
