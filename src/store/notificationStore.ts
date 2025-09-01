@@ -175,6 +175,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     } catch (error: any) {
       console.error('فشل في إعداد مراقب الإشعارات:', error);
       set({ error: error.message, isLoading: false });
+      return () => {}; // إرجاع دالة فارغة في حالة الخطأ
     }
   },
 
