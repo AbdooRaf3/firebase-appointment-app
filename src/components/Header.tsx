@@ -7,7 +7,7 @@ import NotificationBell from './NotificationBell';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuthStore();
-  const { setupPushNotifications, checkNotificationPermission, pushNotificationsEnabled, testNotification } = useNotificationStore();
+  const { setupPushNotifications, checkNotificationPermission, pushNotificationsEnabled, testNotification, sendPhoneNotification } = useNotificationStore();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
@@ -118,13 +118,22 @@ const Header: React.FC = () => {
 
             {/* زر اختبار الإشعارات */}
             {user && pushNotificationsEnabled && (
-              <button
-                onClick={() => testNotification()}
-                className="p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors"
-                title="اختبار الإشعارات"
-              >
-                <span className="text-sm">🧪</span>
-              </button>
+              <>
+                <button
+                  onClick={() => testNotification()}
+                  className="p-2 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg transition-colors"
+                  title="اختبار الإشعارات"
+                >
+                  <span className="text-sm">🧪</span>
+                </button>
+                <button
+                  onClick={() => sendPhoneNotification('اختبار الهاتف', 'هذا إشعار تجريبي للهاتف')}
+                  className="p-2 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg transition-colors"
+                  title="اختبار إشعار الهاتف"
+                >
+                  <span className="text-sm">📱</span>
+                </button>
+              </>
             )}
 
             {/* معلومات المستخدم */}

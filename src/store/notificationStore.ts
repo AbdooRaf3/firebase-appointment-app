@@ -47,6 +47,9 @@ interface NotificationStore {
   // اختبار الإشعارات
   testNotification: () => void;
   
+  // إرسال إشعار للهاتف (مجاني)
+  sendPhoneNotification: (title: string, body: string) => Promise<void>;
+  
   // تنظيف
   clearNotifications: () => void;
 }
@@ -215,12 +218,28 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         return;
       }
 
-      const messaging = getMessaging();
-      
-      // الحصول على توكن الإشعارات
-      const token = await getToken(messaging, {
-        vapidKey: 'YOUR_VAPID_KEY' // يجب استبدالها بمفتاح VAPID الخاص بك
-      });
+      // التحقق من دعم Service Worker
+      if (!('serviceWorker' in navigator)) {
+        console.log('المتصفح لا يدعم Service Worker');
+        return;
+      }
+
+      // التحقق من تسجيل Service Worker
+      const registration = await navigator.serviceWorker.ready;
+      console.log('Service Worker ready:', registration);
+
+      // طلب إذن الإشعارات
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        console.log('تم رفض إذن الإشعارات');
+        return;
+      }
+
+             // الحصول على توكن الإشعارات
+       const messaging = getMessaging();
+       const token = await getToken(messaging, {
+         vapidKey: import.meta.env.VITE_FCM_VAPID_KEY
+       });
 
       if (token) {
         console.log('تم الحصول على توكن الإشعارات:', token);
@@ -237,21 +256,21 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         }
       }
 
-      // الاستماع للإشعارات الواردة
-      onMessage(messaging, (payload) => {
-        console.log('تم استلام إشعار:', payload);
-        
-        // عرض الإشعار في المتصفح
-        if (payload.notification) {
-                  new Notification(payload.notification.title || 'إشعار جديد', {
-          body: payload.notification.body,
-          icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-192x192.png',
-          tag: 'appointment-notification',
-          requireInteraction: true
-        });
-        }
-      });
+             // الاستماع للإشعارات الواردة (عندما يكون التطبيق مفتوح)
+       onMessage(messaging, (payload) => {
+         console.log('تم استلام إشعار (التطبيق مفتوح):', payload);
+         
+         // عرض الإشعار في المتصفح
+         if (payload.notification) {
+           new Notification(payload.notification.title || 'إشعار جديد', {
+             body: payload.notification.body,
+             icon: '/icons/icon-192x192.png',
+             badge: '/icons/icon-192x192.png',
+             tag: 'appointment-notification',
+             requireInteraction: true
+           });
+         }
+       });
 
       // تحديث حالة الإشعارات
       set({ pushNotificationsEnabled: true });
@@ -263,9 +282,40 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     }
   },
 
-  testNotification: () => {
+  testNotification: async () => {
     try {
-      if ('Notification' in window && Notification.permission === 'granted') {
+      // التحقق من Service Worker
+      if (!('serviceWorker' in navigator)) {
+        console.log('المتصفح لا يدعم Service Worker');
+        return;
+      }
+
+      // التحقق من إذن الإشعارات
+      if (!('Notification' in window) || Notification.permission !== 'granted') {
+        console.log('الإشعارات غير مفعلة');
+        return;
+      }
+
+      // الحصول على تسجيل Service Worker
+      const registration = await navigator.serviceWorker.ready;
+      console.log('Service Worker registration:', registration);
+
+             // إرسال إشعار تجريبي
+       await registration.showNotification('اختبار الإشعارات', {
+         body: 'هذا إشعار تجريبي للتأكد من عمل الإشعارات',
+         icon: '/icons/icon-192x192.png',
+         badge: '/icons/icon-192x192.png',
+         tag: 'test-notification',
+         requireInteraction: true
+       });
+
+      console.log('تم إرسال إشعار تجريبي عبر Service Worker');
+
+    } catch (error: any) {
+      console.error('فشل في إرسال إشعار تجريبي:', error);
+      
+      // محاولة إرسال إشعار عادي كحل بديل
+      try {
         new Notification('اختبار الإشعارات', {
           body: 'هذا إشعار تجريبي للتأكد من عمل الإشعارات',
           icon: '/icons/icon-192x192.png',
@@ -273,12 +323,10 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
           tag: 'test-notification',
           requireInteraction: true
         });
-        console.log('تم إرسال إشعار تجريبي');
-      } else {
-        console.log('الإشعارات غير مفعلة');
+        console.log('تم إرسال إشعار تجريبي عادي');
+      } catch (fallbackError) {
+        console.error('فشل في إرسال إشعار بديل:', fallbackError);
       }
-    } catch (error: any) {
-      console.error('فشل في إرسال إشعار تجريبي:', error);
     }
   },
 
@@ -288,5 +336,31 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       unreadCount: 0,
       error: null
     });
+  },
+
+  sendPhoneNotification: async (title: string, body: string) => {
+    try {
+      // التحقق من Service Worker
+      if (!('serviceWorker' in navigator)) {
+        console.log('المتصفح لا يدعم Service Worker');
+        return;
+      }
+
+      // الحصول على تسجيل Service Worker
+      const registration = await navigator.serviceWorker.ready;
+      
+      // إرسال رسالة إلى Service Worker لعرض الإشعار
+      registration.active?.postMessage({
+        type: 'SHOW_NOTIFICATION',
+        title: title,
+        body: body,
+        icon: '/icons/icon-192x192.png',
+        tag: 'phone-notification'
+      });
+
+      console.log('تم إرسال إشعار للهاتف');
+    } catch (error: any) {
+      console.error('فشل في إرسال إشعار للهاتف:', error);
+    }
   }
 }));

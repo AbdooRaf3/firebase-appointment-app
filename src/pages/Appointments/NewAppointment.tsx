@@ -12,7 +12,7 @@ const NewAppointment: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
-  const { sendNotification, scheduleNotification } = useNotificationStore();
+  const { sendNotification, scheduleNotification, sendPhoneNotification } = useNotificationStore();
   
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<UserType[]>([]);
@@ -106,6 +106,12 @@ const NewAppointment: React.FC = () => {
           type: 'appointment_created',
           appointmentId: appointmentRef.id
         });
+
+        // إرسال إشعار للهاتف (مجاني)
+        await sendPhoneNotification(
+          'موعد جديد',
+          `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA')}`
+        );
 
         // جدولة تنبيه قبل الموعد بساعة
         const reminderTime = new Date(selectedDate.getTime() - 60 * 60 * 1000); // قبل ساعة

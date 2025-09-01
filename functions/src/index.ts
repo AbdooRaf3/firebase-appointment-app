@@ -104,7 +104,7 @@ export const onAppointmentCreated = functions.firestore
         return null;
       }
 
-      const userData = userDoc.data();
+      // const userData = userDoc.data(); // غير مستخدم حالياً
 
       // إرسال إشعار فوري
       await db.collection('notifications').add({
@@ -116,6 +116,36 @@ export const onAppointmentCreated = functions.firestore
         isRead: false,
         createdAt: admin.firestore.Timestamp.now()
       });
+
+      // إرسال إشعار FCM للهاتف
+      try {
+        const userTokensRef = db.collection('deviceTokens');
+        const userTokensSnapshot = await userTokensRef
+          .where('uid', '==', appointmentData.assignedToUid)
+          .get();
+
+        if (!userTokensSnapshot.empty) {
+          const tokens = userTokensSnapshot.docs.map(doc => doc.data().token);
+          
+          // إرسال إشعار FCM
+          const fcmMessage = {
+            notification: {
+              title: 'موعد جديد',
+              body: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA')}`
+            },
+            data: {
+              appointmentId: appointmentId,
+              type: 'appointment_created'
+            },
+            tokens: tokens
+          };
+
+          const response = await messaging.sendMulticast(fcmMessage);
+          console.log('تم إرسال إشعار FCM:', response.successCount, 'من', response.responses.length);
+        }
+      } catch (error) {
+        console.error('فشل في إرسال إشعار FCM:', error);
+      }
 
       // جدولة تنبيه قبل الموعد بساعة
       const appointmentTime = appointmentData.when.toDate();
@@ -212,7 +242,7 @@ export const onAppointmentStatusUpdated = functions.firestore
       return { success: true, sentCount: response.successCount };
     } catch (error) {
       console.error('خطأ في إرسال إشعار تحديث الحالة:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   });
 
