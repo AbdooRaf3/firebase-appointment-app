@@ -6,6 +6,7 @@ export default defineConfig(({ command, mode }) => {
   const isProduction = mode === 'production'
   
   return {
+    base: './', // جعل المسارات نسبية
     plugins: [react()],
     server: {
       port: 3000,
