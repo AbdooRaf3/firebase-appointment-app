@@ -7,7 +7,7 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthStore extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
@@ -15,7 +15,7 @@ interface AuthStore extends AuthState {
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  initializeAuth: () => void;
+  initializeAuth: () => (() => void);
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({

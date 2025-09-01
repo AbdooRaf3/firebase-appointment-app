@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, User, FileText, ArrowRight, Save } from 'lucide-react';
+import { Calendar, User, FileText, Save } from 'lucide-react';
 import { collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseClient';
-import { Appointment, User as UserType } from '../../types';
+import { User as UserType } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 

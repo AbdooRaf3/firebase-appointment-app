@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Calendar, Clock, User, FileText, Edit, Trash2, ArrowRight, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, User, Edit, Trash2, ArrowRight } from 'lucide-react';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseClient';
 import { Appointment, User as UserType } from '../../types';

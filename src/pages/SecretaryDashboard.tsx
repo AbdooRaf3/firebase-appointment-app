@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Plus, Search, Filter, Clock, CheckCircle, XCircle } from 'lucide-react';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { Calendar, Plus, Search, Filter, Clock, CheckCircle } from 'lucide-react';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
 import AppointmentCard from '../components/AppointmentCard';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { Link } from 'react-router-dom';
 
 const SecretaryDashboard: React.FC = () => {

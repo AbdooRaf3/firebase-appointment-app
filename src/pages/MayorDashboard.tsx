@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
 import AppointmentCard from '../components/AppointmentCard';
-import { formatSmartDate } from '../utils/dateHelpers';
 
 const MayorDashboard: React.FC = () => {
   const { user } = useAuthStore();

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuthStore } from './store/authStore';
 import { enableFirestorePersistence } from './firebase/enablePersistence';
 import Header from './components/Header';
-import ToastContainer from './components/ToastContainer';
+import ToastContainer from './components/Toast';
 import Login from './pages/Login';
 import UsersManagement from './pages/AdminDashboard/UsersManagement';
 import AppointmentsManagement from './pages/AdminDashboard/AppointmentsManagement';
@@ -87,7 +87,7 @@ const App: React.FC = () => {
     enableFirestorePersistence();
 
     return () => {
-      if (unsubscribe) {
+      if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
     };
