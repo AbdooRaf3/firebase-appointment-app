@@ -10,6 +10,10 @@
     -moz-osx-font-smoothing: grayscale;
     /* منع التمرير المرن على iOS */
     -webkit-overflow-scrolling: touch;
+    /* منع التكبير التلقائي */
+    -webkit-text-size-adjust: 100%;
+    /* تحسين الأداء */
+    will-change: scroll-position;
   }
   
   body {
@@ -22,11 +26,19 @@
     -webkit-text-size-adjust: 100%;
     /* تحسين التمرير */
     overscroll-behavior: none;
+    /* منع التمرير الأفقي */
+    overflow-x: hidden;
+    /* تحسين الأداء */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
   
   /* تحسين مظهر النصوص العربية */
   * {
     font-family: inherit;
+    /* تحسين الأداء */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
   
   /* تحسين مظهر الأزرار للنصوص العربية */
@@ -39,6 +51,11 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* تحسين المظهر على iOS */
+    -webkit-appearance: none;
+    appearance: none;
+    /* منع التكبير */
+    -webkit-tap-highlight-color: transparent;
   }
   
   /* تحسين مظهر حقول الإدخال */
@@ -51,6 +68,12 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
+    /* تحسين الحدود */
+    border-radius: 8px;
+    /* منع التكبير */
+    -webkit-text-size-adjust: 100%;
+    /* تحسين المظهر على iOS */
+    -webkit-tap-highlight-color: transparent;
   }
   
   /* تحسين التمرير على الهواتف */
@@ -75,29 +98,61 @@
   *::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
   }
+  
+  /* تحسين الروابط */
+  a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* تحسين الصور */
+  img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-touch-callout: none;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200;
+    /* تحسين للهواتف */
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors duration-200;
+    /* تحسين للهواتف */
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200;
+    /* تحسين للهواتف */
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .card {
     @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+    /* تحسين للهواتف */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
   
   .form-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
     /* تحسين للهواتف */
-    min-height: 44px; /* الحد الأدنى للمس على iOS */
+    min-height: 48px; /* الحد الأدنى للمس على iOS */
+    font-size: 16px; /* منع التكبير في iOS */
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .form-label {
@@ -112,19 +167,49 @@
   
   .touch-target {
     /* تحسين حجم الأهداف للمس */
-    min-height: 44px;
-    min-width: 44px;
+    min-height: 48px;
+    min-width: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   /* تحسين القوائم المنسدلة للهواتف */
   .mobile-dropdown {
     @apply fixed inset-0 z-50 bg-black bg-opacity-50;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
   }
   
   .mobile-dropdown-content {
     @apply fixed bottom-0 left-0 right-0 bg-white rounded-t-lg shadow-lg;
     max-height: 80vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* تحسين المنطقة الآمنة */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* تحسين النماذج للهواتف */
+  .mobile-form {
+    @apply space-y-4;
+  }
+  
+  .mobile-form-group {
+    @apply space-y-2;
+  }
+  
+  /* تحسين البطاقات للهواتف */
+  .mobile-card {
+    @apply bg-white rounded-lg shadow-sm p-4 border border-gray-200;
+    margin: 0 16px;
+  }
+  
+  /* تحسين الأزرار للهواتف */
+  .mobile-button {
+    @apply w-full py-3 px-4 rounded-lg font-medium transition-colors;
+    min-height: 48px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
@@ -137,13 +222,13 @@
   
   /* تحسين الأزرار */
   .btn-primary, .btn-secondary, .btn-danger {
-    @apply py-3 px-6 text-base;
+    @apply py-3 px-6 text-base w-full;
     min-height: 48px;
   }
   
   /* تحسين البطاقات */
   .card {
-    @apply p-4;
+    @apply p-4 mx-4;
   }
   
   /* تحسين النماذج */
@@ -153,30 +238,41 @@
   
   /* تحسين النصوص */
   h1 {
-    @apply text-2xl;
+    @apply text-2xl font-bold;
   }
   
   h2 {
-    @apply text-xl;
+    @apply text-xl font-semibold;
   }
   
   h3 {
-    @apply text-lg;
+    @apply text-lg font-medium;
   }
   
   /* تحسين الشبكات */
   .grid {
-    @apply gap-3;
+    @apply gap-4;
   }
   
   /* تحسين الإحصائيات */
   .stats-grid {
-    @apply grid-cols-2 gap-3;
+    @apply grid-cols-2 gap-4;
   }
   
   /* تحسين قائمة الإشعارات */
   .notification-list {
     max-height: 60vh;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* تحسين الجداول */
+  .mobile-table {
+    @apply text-sm;
+  }
+  
+  .mobile-table th,
+  .mobile-table td {
+    @apply px-2 py-2;
   }
 }
 
@@ -190,16 +286,54 @@
   /* تحسين المنطقة الآمنة */
   .ios-safe-area {
     padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
   
   /* تحسين التمرير */
   .ios-scroll {
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
   
   /* تحسين الأزرار */
   .ios-button {
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* تحسين حقول الإدخال */
+  .ios-input {
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 8px;
+  }
+  
+  /* تحسين القوائم المنسدلة */
+  .ios-select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 16px;
+    padding-left: 40px;
+    padding-right: 12px;
+  }
+  
+  /* تحسين النماذج */
+  .ios-form {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* تحسين البطاقات */
+  .ios-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 }
 
@@ -210,19 +344,38 @@
   }
   
   .card {
-    @apply p-3;
+    @apply p-3 mx-3;
   }
   
   .btn-primary, .btn-secondary, .btn-danger {
-    @apply py-2 px-4 text-sm;
+    @apply py-3 px-4 text-sm;
   }
   
   h1 {
-    @apply text-xl;
+    @apply text-xl font-bold;
   }
   
   h2 {
-    @apply text-lg;
+    @apply text-lg font-semibold;
+  }
+  
+  .form-input {
+    @apply px-3 py-3;
+  }
+}
+
+/* تحسينات للأجهزة المتوسطة */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    @apply px-6;
+  }
+  
+  .card {
+    @apply p-5;
+  }
+  
+  .btn-primary, .btn-secondary, .btn-danger {
+    @apply py-3 px-6;
   }
 }
 
@@ -243,4 +396,44 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* تحسينات خاصة باللمس */
+@media (hover: none) and (pointer: coarse) {
+  /* تحسين التفاعل باللمس */
+  .touch-interactive {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* تحسين الأزرار */
+  button, .btn-primary, .btn-secondary, .btn-danger {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+  
+  /* تحسين الروابط */
+  a {
+    touch-action: manipulation;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* تحسينات الأداء */
+.performance-optimized {
+  will-change: transform;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* تحسينات خاصة بالشاشات عالية الدقة */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .high-dpi {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
 }

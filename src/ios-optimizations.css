@@ -1,0 +1,306 @@
+/* تحسينات خاصة بـ iPhone */
+@supports (-webkit-touch-callout: none) {
+  /* تحسين شريط الحالة */
+  .ios-status-bar {
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* تحسين المنطقة الآمنة */
+  .ios-safe-area {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* تحسين التمرير */
+  .ios-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    /* منع التمرير المرن */
+    -webkit-overscroll-behavior: none;
+  }
+  
+  /* تحسين الأزرار */
+  .ios-button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    /* تحسين المظهر */
+    -webkit-appearance: none;
+    appearance: none;
+    /* تحسين الحدود */
+    border-radius: 8px;
+    /* تحسين الظلال */
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* تحسين حقول الإدخال */
+  .ios-input {
+    font-size: 16px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 8px;
+    /* منع التكبير */
+    -webkit-text-size-adjust: 100%;
+    /* تحسين الحدود */
+    border: 1px solid #d1d5db;
+    /* تحسين التركيز */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* تحسين القوائم المنسدلة */
+  .ios-select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+    background-size: 16px;
+    padding-left: 40px;
+    padding-right: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+  }
+  
+  /* تحسين النماذج */
+  .ios-form {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* تحسين المسافات */
+    padding: 16px;
+  }
+  
+  /* تحسين البطاقات */
+  .ios-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* تحسين الظلال */
+    -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* تحسين الحدود */
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  /* تحسين القوائم */
+  .ios-list {
+    -webkit-overflow-scrolling: touch;
+    /* تحسين المسافات */
+    padding: 8px 0;
+  }
+  
+  .ios-list-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    /* تحسين التفاعل */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* تحسين التنقل */
+  .ios-nav {
+    /* تحسين المنطقة الآمنة */
+    padding-top: env(safe-area-inset-top);
+    /* تحسين الخلفية */
+    background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  
+  /* تحسين القوائم المنسدلة */
+  .ios-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    /* تحسين الظلال */
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* تحسين الأزرار العائمة */
+  .ios-fab {
+    /* تحسين المنطقة الآمنة */
+    bottom: calc(env(safe-area-inset-bottom) + 16px);
+    right: 16px;
+    /* تحسين الظلال */
+    -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* تحسين الحدود */
+    border-radius: 50%;
+    /* تحسين الحجم */
+    width: 56px;
+    height: 56px;
+  }
+  
+  /* تحسين الإشعارات */
+  .ios-notification {
+    background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    /* تحسين الظلال */
+    -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* تحسين الجداول */
+  .ios-table {
+    -webkit-overflow-scrolling: touch;
+    /* تحسين الحدود */
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .ios-table th,
+  .ios-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  /* تحسين النصوص */
+  .ios-text {
+    /* تحسين القراءة */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* تحسين المسافات */
+    line-height: 1.5;
+  }
+  
+  /* تحسين الصور */
+  .ios-image {
+    border-radius: 8px;
+    /* تحسين الأداء */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* تحسين الأيقونات */
+  .ios-icon {
+    /* تحسين الحجم */
+    width: 24px;
+    height: 24px;
+    /* تحسين اللون */
+    color: #6b7280;
+  }
+  
+  /* تحسين الألوان */
+  .ios-primary {
+    color: #3b82f6;
+  }
+  
+  .ios-secondary {
+    color: #6b7280;
+  }
+  
+  .ios-success {
+    color: #10b981;
+  }
+  
+  .ios-warning {
+    color: #f59e0b;
+  }
+  
+  .ios-error {
+    color: #ef4444;
+  }
+  
+  /* تحسين الخلفيات */
+  .ios-bg-primary {
+    background-color: #3b82f6;
+  }
+  
+  .ios-bg-secondary {
+    background-color: #f9fafb;
+  }
+  
+  .ios-bg-success {
+    background-color: #d1fae5;
+  }
+  
+  .ios-bg-warning {
+    background-color: #fef3c7;
+  }
+  
+  .ios-bg-error {
+    background-color: #fee2e2;
+  }
+  
+  /* تحسين الحالات */
+  .ios-hover:hover {
+    -webkit-transform: translateY(-1px);
+    transform: translateY(-1px);
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+  }
+  
+  .ios-active:active {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    -webkit-transition: all 0.1s ease;
+    transition: all 0.1s ease;
+  }
+  
+  /* تحسين التحميل */
+  .ios-loading {
+    /* تحسين الحركة */
+    -webkit-animation: ios-spin 1s linear infinite;
+    animation: ios-spin 1s linear infinite;
+  }
+  
+  @-webkit-keyframes ios-spin {
+    from {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    to {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes ios-spin {
+    from {
+      -webkit-transform: rotate(0deg);
+      transform: rotate(0deg);
+    }
+    to {
+      -webkit-transform: rotate(360deg);
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* تحسين التمرير */
+  .ios-smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* تحسين التركيز */
+  .ios-focus:focus {
+    outline: none;
+    -webkit-box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  }
+  
+  /* تحسين الإخفاء */
+  .ios-hidden {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+    transform: translateY(10px);
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+  }
+  
+  .ios-visible {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}

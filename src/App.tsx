@@ -4,6 +4,7 @@ import { useAuthStore } from './store/authStore';
 import { enableFirestorePersistence } from './firebase/enablePersistence';
 import Header from './components/Header';
 import ToastContainer from './components/Toast';
+import IOSOptimizations from './components/IOSOptimizations';
 import Login from './pages/Login';
 import UsersManagement from './pages/AdminDashboard/UsersManagement';
 import AppointmentsManagement from './pages/AdminDashboard/AppointmentsManagement';
@@ -94,137 +95,139 @@ const App: React.FC = () => {
   }, [initializeAuth]);
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Routes>
-          {/* صفحة تسجيل الدخول */}
-          <Route path="/login" element={<Login />} />
+    <IOSOptimizations>
+      <Router>
+        <div className="min-h-screen bg-gray-50">
+          <Routes>
+            {/* صفحة تسجيل الدخول */}
+            <Route path="/login" element={<Login />} />
+            
+            {/* لوحة المدير */}
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* إدارة المستخدمين */}
+            <Route 
+              path="/admin/users" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <UsersManagement />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* إدارة المواعيد */}
+            <Route 
+              path="/admin/appointments" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <AppointmentsManagement />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* لوحة رئيس البلدية */}
+            <Route 
+              path="/mayor" 
+              element={
+                <ProtectedRoute allowedRoles={['mayor']}>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <MayorDashboard />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* لوحة السكرتير */}
+            <Route 
+              path="/secretary" 
+              element={
+                <ProtectedRoute allowedRoles={['secretary']}>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <NewAppointment />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* إنشاء موعد جديد */}
+            <Route 
+              path="/appointments/new" 
+              element={
+                <ProtectedRoute allowedRoles={['secretary', 'admin']}>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <NewAppointment />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* تفاصيل الموعد */}
+            <Route 
+              path="/appointments/:id" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <AppointmentDetail />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* الصفحة الرئيسية - إعادة توجيه حسب الدور */}
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <Navigate to="/dashboard" replace />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* لوحة المعلومات - إعادة توجيه حسب الدور */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DashboardRedirect />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
           
-          {/* لوحة المدير */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* إدارة المستخدمين */}
-          <Route 
-            path="/admin/users" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <UsersManagement />
-                  </main>
-                </div>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* إدارة المواعيد */}
-          <Route 
-            path="/admin/appointments" 
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <AppointmentsManagement />
-                  </main>
-                </div>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* لوحة رئيس البلدية */}
-          <Route 
-            path="/mayor" 
-            element={
-              <ProtectedRoute allowedRoles={['mayor']}>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <MayorDashboard />
-                  </main>
-                </div>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* لوحة السكرتير */}
-          <Route 
-            path="/secretary" 
-            element={
-              <ProtectedRoute allowedRoles={['secretary']}>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <SecretaryDashboard />
-                  </main>
-                </div>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* إنشاء موعد جديد */}
-          <Route 
-            path="/appointments/new" 
-            element={
-              <ProtectedRoute allowedRoles={['secretary', 'admin']}>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <NewAppointment />
-                  </main>
-                </div>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* تفاصيل الموعد */}
-          <Route 
-            path="/appointments/:id" 
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-gray-50">
-                  <Header />
-                  <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <AppointmentDetail />
-                  </main>
-                </div>
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* الصفحة الرئيسية - إعادة توجيه حسب الدور */}
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Navigate to="/dashboard" replace />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* لوحة المعلومات - إعادة توجيه حسب الدور */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <DashboardRedirect />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
-        
-        {/* مكون الإشعارات */}
-        <ToastContainer />
-      </div>
-    </Router>
+          {/* مكون الإشعارات */}
+          <ToastContainer />
+        </div>
+      </Router>
+    </IOSOptimizations>
   );
 };
 
