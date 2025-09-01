@@ -10,6 +10,8 @@ const NotificationBell: React.FC = () => {
     loadNotifications,
     markAsRead,
     deleteNotification,
+    unsubscribeFromNotifications,
+    sendNotification,
     isLoading,
     error,
   } = useNotificationStore();
@@ -25,13 +27,17 @@ const NotificationBell: React.FC = () => {
   useEffect(() => {
     if (user) {
       try {
-        const unsubscribe = loadNotifications(user.uid);
-        return unsubscribe;
+        loadNotifications(user.uid);
       } catch (error) {
         console.error('❌ فشل في تحميل الإشعارات:', error);
       }
     }
-  }, [user, loadNotifications]);
+    
+    // تنظيف عند إلغاء المكون
+    return () => {
+      unsubscribeFromNotifications();
+    };
+  }, [user, loadNotifications, unsubscribeFromNotifications]);
 
   // إغلاق عند الضغط خارج القائمة
   useEffect(() => {
@@ -139,6 +145,8 @@ const NotificationBell: React.FC = () => {
 
 
   const renderNotificationContent = useCallback(() => {
+    console.log('Rendering notifications:', { notifications, isLoading, error, unreadCount });
+    
     return (
       <>
         
@@ -173,6 +181,7 @@ const NotificationBell: React.FC = () => {
           ) : notifications.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <p>لا توجد إشعارات</p>
+              <p className="text-xs text-gray-400 mt-1">عدد الإشعارات: {notifications.length}</p>
             </div>
           ) : (
             notifications.map((notification) => (
@@ -222,25 +231,45 @@ const NotificationBell: React.FC = () => {
         </div>
 
         {/* أزرار الإجراءات */}
-        {notifications.length > 0 && (
-          <div className="p-3 border-t border-gray-200 flex justify-between">
-            <button
-              onClick={handleMarkAllAsRead}
-              className="text-sm text-blue-600 hover:text-blue-800 transition-colors px-3 py-1 rounded border border-blue-200 hover:bg-blue-50"
-            >
-              تمييز جميعها كقراءة
-            </button>
-            <button
-              onClick={handleDeleteAll}
-              className="text-sm text-red-600 hover:text-red-800 transition-colors px-3 py-1 rounded border border-red-200 hover:bg-red-50"
-            >
-              حذف جميعها
-            </button>
-          </div>
-        )}
+        <div className="p-3 border-t border-gray-200">
+          {notifications.length > 0 ? (
+            <div className="flex justify-between">
+              <button
+                onClick={handleMarkAllAsRead}
+                className="text-sm text-blue-600 hover:text-blue-800 transition-colors px-3 py-1 rounded border border-blue-200 hover:bg-blue-50"
+              >
+                تمييز جميعها كقراءة
+              </button>
+              <button
+                onClick={handleDeleteAll}
+                className="text-sm text-red-600 hover:text-red-800 transition-colors px-3 py-1 rounded border border-red-200 hover:bg-red-50"
+              >
+                حذف جميعها
+              </button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <button
+                onClick={async () => {
+                  if (user) {
+                    await sendNotification({
+                      userId: user.uid,
+                      title: 'إشعار تجريبي',
+                      message: 'هذا إشعار تجريبي لاختبار النظام',
+                      type: 'general'
+                    });
+                  }
+                }}
+                className="text-sm text-green-600 hover:text-green-800 transition-colors px-3 py-1 rounded border border-green-200 hover:bg-green-50"
+              >
+                إرسال إشعار تجريبي
+              </button>
+            </div>
+          )}
+        </div>
       </>
     );
-  }, [notifications, isLoading, error, isOpen, dropdownPosition, getNotificationColor, getNotificationIcon, formatDate, handleMarkAsRead, handleDelete, handleMarkAllAsRead, handleDeleteAll]);
+  }, [notifications, isLoading, error, unreadCount, getNotificationColor, getNotificationIcon, formatDate, handleMarkAsRead, handleDelete, handleMarkAllAsRead, handleDeleteAll]);
 
   return (
     <div className="relative">

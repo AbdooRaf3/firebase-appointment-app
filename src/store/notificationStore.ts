@@ -22,6 +22,7 @@ interface NotificationStore {
   isLoading: boolean;
   error: string | null;
   pushNotificationsEnabled: boolean; // حالة تفعيل الإشعارات
+  unsubscribe: (() => void) | null; // دالة إلغاء الاشتراك
   
   // إرسال إشعار
   sendNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'isRead'>) => Promise<void>;
@@ -37,6 +38,9 @@ interface NotificationStore {
   
   // تحميل الإشعارات
   loadNotifications: (userId: string) => void;
+  
+  // إلغاء الاشتراك من الإشعارات
+  unsubscribeFromNotifications: () => void;
   
   // إعداد إشعارات المتصفح
   setupPushNotifications: () => Promise<void>;
@@ -60,6 +64,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   isLoading: false,
   error: null,
   pushNotificationsEnabled: false, // حالة تفعيل الإشعارات
+  unsubscribe: null, // دالة إلغاء الاشتراك
 
   sendNotification: async (notification) => {
     try {
@@ -128,6 +133,12 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   },
 
   loadNotifications: (userId: string) => {
+    // إلغاء الاشتراك السابق إذا كان موجوداً
+    const currentUnsubscribe = get().unsubscribe;
+    if (currentUnsubscribe) {
+      currentUnsubscribe();
+    }
+    
     set({ isLoading: true, error: null });
     
     try {
@@ -159,6 +170,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
         const unreadCount = notificationsData.filter(n => !n.isRead).length;
         console.log('عدد الإشعارات غير المقروءة:', unreadCount);
+        console.log('إجمالي الإشعارات المحملة:', notificationsData.length);
         
         set({
           notifications: notificationsData,
@@ -170,12 +182,19 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         set({ error: error.message, isLoading: false });
       });
 
-      // إرجاع دالة إلغاء الاشتراك
-      return unsubscribe;
+      // حفظ دالة إلغاء الاشتراك
+      set({ unsubscribe });
     } catch (error: any) {
       console.error('فشل في إعداد مراقب الإشعارات:', error);
       set({ error: error.message, isLoading: false });
-      return () => {}; // إرجاع دالة فارغة في حالة الخطأ
+    }
+  },
+
+  unsubscribeFromNotifications: () => {
+    const currentUnsubscribe = get().unsubscribe;
+    if (currentUnsubscribe) {
+      currentUnsubscribe();
+      set({ unsubscribe: null });
     }
   },
 

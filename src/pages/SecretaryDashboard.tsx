@@ -78,7 +78,7 @@ const SecretaryDashboard: React.FC = () => {
       
       setAppointments(appointmentsData);
       setLoading(false);
-    }, (error) => {
+    }, (_error) => {
       addToast({
         type: 'error',
         message: 'فشل في تحميل المواعيد'
@@ -95,7 +95,7 @@ const SecretaryDashboard: React.FC = () => {
 
     const checkUpcomingAppointments = () => {
       const now = new Date();
-      const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000); // ساعة من الآن
+      // const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000); // ساعة من الآن
       const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000); // غداً
 
       const upcoming = appointments.filter(appointment => {

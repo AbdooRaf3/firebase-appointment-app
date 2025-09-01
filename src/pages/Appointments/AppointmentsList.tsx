@@ -4,16 +4,16 @@ import { db } from '../../firebase/firebaseClient';
 import { Appointment, User } from '../../types';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { useNotificationStore } from '../../store/notificationStore';
+// import { useNotificationStore } from '../../store/notificationStore';
 import AppointmentCard from '../../components/AppointmentCard';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Filter, Calendar, Clock, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import { Plus, Search, Filter, Calendar } from 'lucide-react';
 
 const AppointmentsList: React.FC = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
-  const { sendNotification } = useNotificationStore();
+  // const { sendNotification } = useNotificationStore();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
