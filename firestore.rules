@@ -26,9 +26,12 @@ service cloud.firestore {
         resource.data.assignedToUid == request.auth.uid
       );
 
-      // لسرد/استعلام (list/query): للسِلكية السهلة نسمح للمدير فقط بشكل افتراضي.
-      // (ملاحظة: يمكنك تحسين قواعد الاستعلام للسماح للمستخدمين بعمل where مقيد على الحقل المناسب)
-      allow list: if isSignedIn() && userRole(request.auth.uid) == 'admin';
+      // لسرد/استعلام (list/query): السماح للمدير بقراءة كل شيء، والسكرتير ورئيس البلدية يقرأون المواعيد المناسبة لهم
+      allow list: if isSignedIn() && (
+        userRole(request.auth.uid) == 'admin' ||
+        userRole(request.auth.uid) == 'secretary' ||
+        userRole(request.auth.uid) == 'mayor'
+      );
 
       // الإنشاء: السكرتير أو المدير فقط
       allow create: if isSignedIn() && (userRole(request.auth.uid) in ['secretary','admin']);
