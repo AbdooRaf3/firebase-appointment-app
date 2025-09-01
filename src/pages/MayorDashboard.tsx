@@ -14,7 +14,8 @@ const MayorDashboard: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'today' | 'upcoming'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'today' | 'upcoming' | 'done'>('all');
+  const [upcomingNotifications, setUpcomingNotifications] = useState<Appointment[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -81,6 +82,47 @@ const MayorDashboard: React.FC = () => {
     return () => unsubscribe();
   }, [user, addToast]);
 
+  // التحقق من المواعيد القادمة
+  useEffect(() => {
+    if (appointments.length === 0) return;
+
+    const checkUpcomingAppointments = () => {
+      const now = new Date();
+      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000); // غداً
+
+      const upcoming = appointments.filter(appointment => {
+        const appointmentTime = appointment.when;
+        return (
+          appointment.status === 'pending' &&
+          appointmentTime > now &&
+          appointmentTime <= tomorrow
+        );
+      });
+
+      setUpcomingNotifications(upcoming);
+
+      // إرسال إشعارات للمواعيد القادمة خلال ساعة
+      upcoming.forEach(appointment => {
+        const timeDiff = appointment.when.getTime() - now.getTime();
+        const hoursUntilAppointment = timeDiff / (1000 * 60 * 60);
+
+        if (hoursUntilAppointment <= 1 && hoursUntilAppointment > 0) {
+          addToast({
+            type: 'info',
+            message: `موعد قادم: ${appointment.title} في ${appointment.when.toLocaleTimeString('ar-SA')}`
+          });
+        }
+      });
+    };
+
+    checkUpcomingAppointments();
+
+    // التحقق كل 30 دقيقة
+    const interval = setInterval(checkUpcomingAppointments, 30 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [appointments, addToast]);
+
   const handleStatusChange = async (appointment: Appointment, newStatus: string) => {
     try {
       const appointmentRef = doc(db, 'appointments', appointment.id!);
@@ -130,6 +172,8 @@ const MayorDashboard: React.FC = () => {
         });
       case 'upcoming':
         return appointments.filter(app => app.when > now && app.status === 'pending');
+      case 'done':
+        return appointments.filter(app => app.status === 'done');
       default:
         return appointments;
     }
@@ -153,6 +197,10 @@ const MayorDashboard: React.FC = () => {
     return appointments.filter(app => app.when > now && app.status === 'pending').length;
   };
 
+  const getCancelledCount = () => {
+    return appointments.filter(app => app.status === 'cancelled').length;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -173,7 +221,7 @@ const MayorDashboard: React.FC = () => {
 
       {/* إحصائيات سريعة */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stats-grid">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('all')}>
           <div className="flex items-center">
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
@@ -182,7 +230,7 @@ const MayorDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('pending')}>
           <div className="flex items-center">
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">في الانتظار</p>
@@ -191,7 +239,7 @@ const MayorDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('done')}>
           <div className="flex items-center">
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">مكتمل</p>
@@ -200,7 +248,7 @@ const MayorDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('today')}>
           <div className="flex items-center">
             <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">اليوم</p>
@@ -209,6 +257,82 @@ const MayorDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* إحصائيات إضافية */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('upcoming')}>
+          <div className="flex items-center">
+            <div className="mr-4">
+              <p className="text-sm font-medium text-gray-600">قادمة</p>
+              <p className="text-2xl font-bold text-gray-900">{getUpcomingCount()}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
+          <div className="flex items-center">
+            <div className="mr-4">
+              <p className="text-sm font-medium text-gray-600">ملغية</p>
+              <p className="text-2xl font-bold text-gray-900">{getStatusCount('cancelled')}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
+          <div className="flex items-center">
+            <div className="mr-4">
+              <p className="text-sm font-medium text-gray-600">مكتملة</p>
+              <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* إشعارات المواعيد القادمة */}
+      {upcomingNotifications.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <h3 className="text-lg font-medium text-yellow-800">مواعيد قادمة</h3>
+            </div>
+            <button
+              onClick={() => setFilter('upcoming')}
+              className="text-sm text-yellow-700 hover:text-yellow-800 underline"
+            >
+              عرض جميع المواعيد القادمة
+            </button>
+          </div>
+          <div className="space-y-2">
+            {upcomingNotifications.slice(0, 3).map((appointment) => {
+              const timeDiff = appointment.when.getTime() - new Date().getTime();
+              const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60));
+              
+              return (
+                <div key={appointment.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-yellow-200">
+                  <div>
+                    <p className="font-medium text-gray-900">{appointment.title}</p>
+                    <p className="text-sm text-gray-600">
+                      {appointment.when.toLocaleDateString('ar-SA')} في {appointment.when.toLocaleTimeString('ar-SA')}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      hoursUntil <= 1 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {hoursUntil <= 1 ? 'قريباً جداً' : `خلال ${hoursUntil} ساعة`}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            {upcomingNotifications.length > 3 && (
+              <p className="text-sm text-yellow-700 text-center">
+                و {upcomingNotifications.length - 3} مواعيد أخرى قادمة
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* تصفية المواعيد */}
       <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
