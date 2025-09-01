@@ -45,7 +45,7 @@ const Header: React.FC = () => {
   const navItems = getNavItems();
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 ios-status-bar">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* الشعار */}
@@ -143,24 +143,50 @@ const Header: React.FC = () => {
 
         {/* القائمة المنسدلة للشاشات الصغيرة */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
+          <div className="md:hidden border-t border-gray-200 py-4 ios-safe-area">
             <nav className="space-y-2">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`flex items-center space-x-3 space-x-reverse px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-lg text-base font-medium transition-colors touch-target ${
                     location.pathname === item.path
                       ? 'bg-primary-100 text-primary-700'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  <span>{item.icon}</span>
+                  <span className="text-lg">{item.icon}</span>
                   <span>{item.label}</span>
                 </Link>
               ))}
             </nav>
+
+            {/* معلومات المستخدم للشاشات الصغيرة */}
+            {user && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-3 space-x-reverse px-4">
+                  <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                    <span className="text-primary-700 text-lg font-medium">
+                      {user.displayName.charAt(0)}
+                    </span>
+                  </div>
+                  <div className="text-right flex-1">
+                    <p className="text-base font-medium text-gray-900">{user.displayName}</p>
+                    <p className="text-sm text-gray-500 capitalize">{user.role}</p>
+                  </div>
+                </div>
+                
+                {/* زر تسجيل الخروج للهواتف */}
+                <button
+                  onClick={handleSignOut}
+                  className="w-full mt-4 mx-4 flex items-center justify-center space-x-2 space-x-reverse px-4 py-3 bg-red-50 text-red-700 rounded-lg font-medium transition-colors touch-target hover:bg-red-100"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>تسجيل الخروج</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

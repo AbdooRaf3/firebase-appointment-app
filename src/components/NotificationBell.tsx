@@ -54,7 +54,7 @@ const NotificationBell: React.FC = () => {
       {/* زر جرس الإشعارات */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-800 transition-colors"
+        className="relative p-2 text-gray-600 hover:text-gray-800 transition-colors touch-target ios-button"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -66,7 +66,14 @@ const NotificationBell: React.FC = () => {
 
       {/* قائمة الإشعارات */}
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+        <>
+          {/* خلفية شفافة للهواتف */}
+          <div 
+            className="fixed inset-0 z-40 md:hidden" 
+            onClick={() => setIsOpen(false)}
+          />
+          
+          <div className="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto ios-scroll md:block mobile-dropdown-content md:relative md:mt-2 md:w-80 md:max-h-96">
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900">الإشعارات</h3>
@@ -118,14 +125,14 @@ const NotificationBell: React.FC = () => {
                       {!notification.isRead && (
                         <button
                           onClick={() => handleMarkAsRead(notification.id!)}
-                          className="text-xs text-blue-600 hover:text-blue-800"
+                          className="text-xs text-blue-600 hover:text-blue-800 touch-target px-2 py-1 rounded"
                         >
                           تحديد كمقروء
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(notification.id!)}
-                        className="text-xs text-red-600 hover:text-red-800"
+                        className="text-xs text-red-600 hover:text-red-800 touch-target px-2 py-1 rounded"
                       >
                         حذف
                       </button>
@@ -151,14 +158,7 @@ const NotificationBell: React.FC = () => {
             </div>
           )}
         </div>
-      )}
-
-      {/* إغلاق عند النقر خارج القائمة */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40"
-          onClick={() => setIsOpen(false)}
-        />
+        </>
       )}
     </div>
   );

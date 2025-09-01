@@ -10,6 +10,26 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    // تحسين الأداء للهواتف
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/messaging'],
+          router: ['react-router-dom'],
+          ui: ['lucide-react']
+        }
+      }
+    },
+    // تحسين حجم الملفات
+    chunkSizeWarningLimit: 1000,
+    // تحسين الأداء
+    target: 'es2015',
+    minify: 'esbuild'
+  },
+  // تحسين الأداء في التطوير
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'firebase/app', 'firebase/auth', 'firebase/firestore']
   }
 })

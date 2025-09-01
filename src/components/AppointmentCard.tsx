@@ -59,7 +59,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 hover:shadow-lg transition-shadow mobile-optimized">
       {/* العنوان والحالة */}
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-lg font-semibold text-gray-900">{appointment.title}</h3>
@@ -113,12 +113,12 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
       </div>
 
       {/* الأزرار */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-4 border-t border-gray-200 gap-3">
         <div className="flex items-center space-x-2 space-x-reverse">
           {canEdit && onEdit && (
             <button
               onClick={() => onEdit(appointment)}
-              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-md transition-colors"
+              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-md transition-colors touch-target"
             >
               <Edit className="w-4 h-4" />
               <span>تعديل</span>
@@ -128,7 +128,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canDelete && onDelete && (
             <button
               onClick={() => onDelete(appointment)}
-              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors touch-target"
             >
               <Trash2 className="w-4 h-4" />
               <span>حذف</span>
@@ -141,7 +141,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           <select
             value={appointment.status}
             onChange={handleStatusChange}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent touch-target w-full sm:w-auto"
           >
             <option value="pending">في الانتظار</option>
             <option value="done">مكتمل</option>

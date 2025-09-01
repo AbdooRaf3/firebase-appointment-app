@@ -82,7 +82,7 @@ const Login: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 ios-safe-area">
       <div className="max-w-md w-full space-y-8">
         {/* الشعار والعنوان */}
         <div className="text-center">
@@ -165,7 +165,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed touch-target ios-button"
             >
               {isLoading ? (
                 <>

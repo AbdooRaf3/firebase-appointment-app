@@ -173,7 +173,7 @@ const MayorDashboard: React.FC = () => {
       </div>
 
       {/* إحصائيات سريعة */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stats-grid">
         <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -228,7 +228,7 @@ const MayorDashboard: React.FC = () => {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'all'
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -238,7 +238,7 @@ const MayorDashboard: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('pending')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'pending'
                 ? 'bg-yellow-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -248,7 +248,7 @@ const MayorDashboard: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('today')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'today'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -258,7 +258,7 @@ const MayorDashboard: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('upcoming')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'upcoming'
                 ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

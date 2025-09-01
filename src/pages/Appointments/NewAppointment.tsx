@@ -153,15 +153,15 @@ const NewAppointment: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 ios-safe-area">
       {/* العنوان */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900">موعد جديد</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">موعد جديد</h1>
         <p className="text-gray-600">إنشاء موعد جديد لرئيس البلدية</p>
       </div>
 
       {/* نموذج إنشاء الموعد */}
-      <div className="card">
+      <div className="card mobile-optimized">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* عنوان الموعد */}
           <div>
@@ -245,18 +245,18 @@ const NewAppointment: React.FC = () => {
           </div>
 
           {/* أزرار الإجراءات */}
-          <div className="flex items-center justify-end space-x-3 space-x-reverse pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 space-x-reverse pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={() => navigate('/secretary')}
-              className="btn-secondary"
+              className="btn-secondary touch-target w-full sm:w-auto"
             >
               إلغاء
             </button>
             <button
               type="submit"
               disabled={loading || users.length === 0}
-              className="btn-primary flex items-center space-x-2 space-x-reverse disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary flex items-center justify-center space-x-2 space-x-reverse disabled:opacity-50 disabled:cursor-not-allowed touch-target w-full sm:w-auto"
             >
               {loading ? (
                 <>
