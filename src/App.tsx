@@ -47,6 +47,7 @@ const ProtectedRoute: React.FC<{
 // مكون لوحة المدير
 const AdminDashboard: React.FC = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   
   if (!user || user.role !== 'admin') {
     return <Navigate to="/" replace />;
@@ -62,16 +63,20 @@ const AdminDashboard: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/admin/users')}>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">إدارة المستخدمين</h2>
             <p className="text-gray-600 mb-4">إضافة وتعديل وحذف المستخدمين وتعيين الأدوار</p>
-            <UsersManagement />
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-blue-700 text-sm">اضغط للانتقال إلى إدارة المستخدمين</p>
+            </div>
           </div>
           
-          <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="bg-white rounded-lg shadow p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/admin/appointments')}>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">إدارة المواعيد</h2>
             <p className="text-gray-600 mb-4">عرض وإدارة جميع المواعيد في النظام</p>
-            <AppointmentsManagement />
+            <div className="mt-4 p-4 bg-green-50 rounded-lg">
+              <p className="text-green-700 text-sm">اضغط للانتقال إلى إدارة المواعيد</p>
+            </div>
           </div>
         </div>
       </main>
