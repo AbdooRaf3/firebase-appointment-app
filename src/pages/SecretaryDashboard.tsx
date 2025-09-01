@@ -8,12 +8,14 @@ import { useToastStore } from '../store/toastStore';
 import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const SecretaryDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
   const { sendNotification } = useNotificationStore();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -437,27 +439,118 @@ const SecretaryDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* شريط التنقل */}
+      <nav className="bg-white rounded-lg shadow border border-gray-200 p-4">
+        <div className="flex flex-wrap items-center justify-between">
+          <div className="flex items-center space-x-4 space-x-reverse">
+            <h2 className="text-xl font-semibold text-gray-900">لوحة السكرتير</h2>
+          </div>
+          
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <button
+              onClick={() => navigate('/appointments')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/appointments' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              المواعيد
+            </button>
+            <button
+              onClick={() => navigate('/appointments/new')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/appointments/new' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              موعد جديد
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/dashboard' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              لوحة التحكم
+            </button>
+            <button
+              onClick={() => navigate('/profile')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/profile' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              الملف الشخصي
+            </button>
+            <button
+              onClick={() => navigate('/logout')}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+            >
+              تسجيل الخروج
+            </button>
+          </div>
+        </div>
+      </nav>
+
       {/* الترحيب */}
       <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">مرحباً، {user?.displayName}</h1>
-        <p className="text-green-100">لوحة السكرتير - إدارة المواعيد والجدول الزمني</p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">مرحباً، {user?.displayName}</h1>
+            <p className="text-green-100">لوحة السكرتير - إدارة المواعيد والجدول الزمني</p>
+          </div>
+          
+          <div className="mt-4 lg:mt-0 flex flex-wrap gap-2">
+            <button
+              onClick={() => navigate('/appointments/new')}
+              className="px-4 py-2 bg-white text-green-700 rounded-lg font-medium hover:bg-green-50 transition-colors flex items-center space-x-2 space-x-reverse"
+            >
+              <Plus className="w-4 h-4" />
+              <span>إنشاء موعد جديد</span>
+            </button>
+            <button
+              onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')}
+              className="px-4 py-2 bg-white text-green-700 rounded-lg font-medium hover:bg-green-50 transition-colors flex items-center space-x-2 space-x-reverse"
+            >
+              {viewMode === 'list' ? <Grid3X3 className="w-4 h-4" /> : <List className="w-4 h-4" />}
+              <span>{viewMode === 'list' ? 'عرض التقويم' : 'عرض القائمة'}</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* إحصائيات سريعة */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Calendar className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="mr-4">
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">إحصائيات سريعة</h3>
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <button
+              onClick={() => setDateFilter('all')}
+              className="text-sm text-primary-600 hover:text-primary-700 underline"
+            >
+              عرض جميع المواعيد
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setDateFilter('all')}>
+            <div className="flex items-center">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Calendar className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="mr-4">
               <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
               <p className="text-2xl font-bold text-gray-900">{appointments.length}</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('pending')}>
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <AlertCircle className="w-6 h-6 text-yellow-600" />
@@ -469,7 +562,7 @@ const SecretaryDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('done')}>
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
               <CheckCircle className="w-6 h-6 text-green-600" />
@@ -481,7 +574,7 @@ const SecretaryDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setDateFilter('today')}>
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
               <CalendarDays className="w-6 h-6 text-purple-600" />
@@ -493,10 +586,11 @@ const SecretaryDashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      </div>
 
       {/* إحصائيات إضافية */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setDateFilter('upcoming')}>
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
               <Clock className="w-6 h-6 text-blue-600" />
@@ -508,7 +602,7 @@ const SecretaryDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setDateFilter('past')}>
           <div className="flex items-center">
             <div className="p-2 bg-gray-100 rounded-lg">
               <History className="w-6 h-6 text-gray-600" />
@@ -520,7 +614,7 @@ const SecretaryDashboard: React.FC = () => {
           </div>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
+        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('cancelled')}>
           <div className="flex items-center">
             <div className="p-2 bg-red-100 rounded-lg">
               <XCircle className="w-6 h-6 text-red-600" />
@@ -536,9 +630,17 @@ const SecretaryDashboard: React.FC = () => {
       {/* إشعارات المواعيد القادمة */}
       {upcomingNotifications.length > 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex items-center mb-3">
-            <Bell className="w-5 h-5 text-yellow-600 ml-2" />
-            <h3 className="text-lg font-medium text-yellow-800">مواعيد قادمة</h3>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <Bell className="w-5 h-5 text-yellow-600 ml-2" />
+              <h3 className="text-lg font-medium text-yellow-800">مواعيد قادمة</h3>
+            </div>
+            <button
+              onClick={() => setDateFilter('upcoming')}
+              className="text-sm text-yellow-700 hover:text-yellow-800 underline"
+            >
+              عرض جميع المواعيد القادمة
+            </button>
           </div>
           <div className="space-y-2">
             {upcomingNotifications.slice(0, 3).map((appointment) => {
@@ -707,47 +809,69 @@ const SecretaryDashboard: React.FC = () => {
       </div>
 
       {/* عرض المواعيد */}
-      {viewMode === 'calendar' ? (
-        renderCalendar()
-      ) : (
-        <div className="space-y-4">
-          {filteredAppointments.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
-              <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد مواعيد</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
-                  ? 'جرب تغيير معايير البحث أو التصفية' 
-                  : 'لم تقم بإنشاء أي مواعيد بعد. ابدأ بإنشاء موعد جديد!'
-                }
-              </p>
-              {!searchTerm && statusFilter === 'all' && dateFilter === 'all' && (
-                <Link
-                  to="/appointments/new"
-                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  إنشاء موعد جديد
-                </Link>
-              )}
-            </div>
-          ) : (
-            filteredAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                createdByUser={getUserById(appointment.createdByUid)}
-                assignedToUser={getUserById(appointment.assignedToUid)}
-                onDelete={setDeleteAppointment}
-                onStatusChange={handleStatusChange}
-                canEdit={true}
-                canDelete={true}
-                canChangeStatus={true}
-              />
-            ))
-          )}
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">
+            {viewMode === 'calendar' ? 'تقويم المواعيد' : 'قائمة المواعيد'}
+          </h3>
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <span className="text-sm text-gray-500">
+              {filteredAppointments.length} موعد
+            </span>
+            {filteredAppointments.length > 0 && (
+              <button
+                onClick={exportToCSV}
+                className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                title="تصدير إلى CSV"
+              >
+                <Download className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
-      )}
+        
+        {viewMode === 'calendar' ? (
+          renderCalendar()
+        ) : (
+          <div className="space-y-4">
+            {filteredAppointments.length === 0 ? (
+              <div className="text-center py-12">
+                <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد مواعيد</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
+                    ? 'جرب تغيير معايير البحث أو التصفية' 
+                    : 'لم تقم بإنشاء أي مواعيد بعد. ابدأ بإنشاء موعد جديد!'
+                  }
+                </p>
+                {!searchTerm && statusFilter === 'all' && dateFilter === 'all' && (
+                  <Link
+                    to="/appointments/new"
+                    className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    إنشاء موعد جديد
+                  </Link>
+                )}
+              </div>
+            ) : (
+              filteredAppointments.map((appointment) => (
+                <AppointmentCard
+                  key={appointment.id}
+                  appointment={appointment}
+                  createdByUser={getUserById(appointment.createdByUid)}
+                  assignedToUser={getUserById(appointment.assignedToUid)}
+                  onDelete={setDeleteAppointment}
+                  onStatusChange={handleStatusChange}
+                  canEdit={true}
+                  canDelete={true}
+                  canChangeStatus={true}
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
 
       {/* حوار تأكيد الحذف */}
       <ConfirmDialog
