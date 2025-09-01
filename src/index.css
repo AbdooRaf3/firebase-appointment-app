@@ -1,3 +1,4 @@
+/* Tailwind CSS directives - these are expected and will be processed by the build system */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,8 +11,10 @@
     -moz-osx-font-smoothing: grayscale;
     /* منع التمرير المرن على iOS */
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     /* منع التكبير التلقائي */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     /* تحسين الأداء */
     will-change: scroll-position;
   }
@@ -24,6 +27,7 @@
     -webkit-tap-highlight-color: transparent;
     /* منع التكبير عند النقر على الحقول في iOS */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     /* تحسين التمرير */
     overscroll-behavior: none;
     /* منع التمرير الأفقي */
@@ -72,6 +76,7 @@
     border-radius: 8px;
     /* منع التكبير */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     /* تحسين المظهر على iOS */
     -webkit-tap-highlight-color: transparent;
   }
@@ -108,8 +113,9 @@
   /* تحسين الصور */
   img {
     -webkit-user-drag: none;
-    user-drag: none;
     -webkit-touch-callout: none;
+    /* Use standard draggable attribute instead of user-drag */
+    pointer-events: none;
   }
 }
 
@@ -185,6 +191,7 @@
     max-height: 80vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     /* تحسين المنطقة الآمنة */
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -263,6 +270,7 @@
   .notification-list {
     max-height: 60vh;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
   
   /* تحسين الجداول */
@@ -434,6 +442,11 @@
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .high-dpi {
     image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    image-rendering: optimize-contrast;
   }
+}
+
+/* Custom shadow for notification dropdown */
+.custom-shadow {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }

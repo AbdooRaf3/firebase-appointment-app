@@ -259,6 +259,7 @@ const AppointmentsList: React.FC = () => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="form-input pr-10"
+              aria-label="تصفية حسب حالة الموعد"
             >
               <option value="all">جميع الحالات</option>
               <option value="pending">في الانتظار</option>
