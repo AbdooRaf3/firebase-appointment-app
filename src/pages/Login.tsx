@@ -16,8 +16,10 @@ const Login: React.FC = () => {
 
   // إعادة التوجيه إذا كان المستخدم مسجل دخول
   useEffect(() => {
+    console.log('Login useEffect - user:', user, 'loading:', loading);
     if (user && !loading) {
       const redirectPath = getRedirectPath(user.role);
+      console.log('Redirecting to:', redirectPath);
       navigate(redirectPath);
     }
   }, [user, loading, navigate]);
@@ -49,12 +51,15 @@ const Login: React.FC = () => {
     setIsLoading(true);
     
     try {
+      console.log('Attempting to sign in with:', email);
       await signIn(email, password);
+      console.log('Sign in successful');
       addToast({
         type: 'success',
         message: 'تم تسجيل الدخول بنجاح'
       });
     } catch (error: any) {
+      console.error('Sign in error:', error);
       addToast({
         type: 'error',
         message: error.message || 'حدث خطأ في تسجيل الدخول'

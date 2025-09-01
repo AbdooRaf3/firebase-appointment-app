@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loading: true,
   error: null,
 
-  signIn: async (email: string, password: string) => {
+  signIn: async (email: string, password: string): Promise<void> => {
     try {
       set({ loading: true, error: null });
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -42,6 +42,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           createdAt: userData.createdAt.toDate()
         };
         set({ user, loading: false });
+        return;
       } else {
         throw new Error('لم يتم العثور على بيانات المستخدم');
       }
@@ -59,6 +60,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
       
       set({ error: errorMessage, loading: false });
+      throw new Error(errorMessage);
     }
   },
 
