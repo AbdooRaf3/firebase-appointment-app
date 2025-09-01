@@ -12,6 +12,8 @@ import MayorDashboard from './pages/MayorDashboard';
 import SecretaryDashboard from './pages/SecretaryDashboard';
 import NewAppointment from './pages/Appointments/NewAppointment';
 import AppointmentDetail from './pages/Appointments/AppointmentDetail';
+import AppointmentsList from './pages/Appointments/AppointmentsList';
+import UserProfile from './pages/UserProfile';
 
 // مكون الحماية للمسارات
 const ProtectedRoute: React.FC<{ 
@@ -187,6 +189,21 @@ const App: React.FC = () => {
               } 
             />
             
+            {/* عرض جميع المواعيد */}
+            <Route 
+              path="/appointments" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <AppointmentsList />
+                    </main>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+            
             {/* تفاصيل الموعد */}
             <Route 
               path="/appointments/:id" 
@@ -208,6 +225,21 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Navigate to="/dashboard" replace />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* الملف الشخصي */}
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <Header />
+                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      <UserProfile />
+                    </main>
+                  </div>
                 </ProtectedRoute>
               } 
             />

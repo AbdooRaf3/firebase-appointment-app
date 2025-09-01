@@ -13,6 +13,7 @@ interface AuthStore extends AuthState {
   signIn: (email: string, password: string) => Promise<User | null>;
   signOut: () => Promise<void>;
   setUser: (user: User | null) => void;
+  updateUser: (user: User) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   initializeAuth: () => (() => void);
@@ -80,6 +81,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   setUser: (user: User | null) => set({ user }),
+  updateUser: (user: User) => set({ user }),
   setLoading: (loading: boolean) => set({ loading }),
   setError: (error: string | null) => set({ error }),
 
