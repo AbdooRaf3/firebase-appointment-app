@@ -10,9 +10,10 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
 
     // users collection: يسمح للمدير بإدارة وقراءة الجميع، والمستخدم بتعديل ملفه
+    // السماح لجميع المستخدمين المسجلين بقراءة بيانات المستخدمين (مطلوب لعرض الأسماء)
     match /users/{uid} {
       allow create: if isSignedIn() && userRole(request.auth.uid) == 'admin';
-      allow read: if isSignedIn() && (userRole(request.auth.uid) == 'admin' || request.auth.uid == uid);
+      allow read: if isSignedIn();
       allow update: if isSignedIn() && (userRole(request.auth.uid) == 'admin' || request.auth.uid == uid);
       allow delete: if isSignedIn() && userRole(request.auth.uid) == 'admin';
     }
