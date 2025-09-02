@@ -167,6 +167,8 @@ const UserProfile: React.FC = () => {
           <button 
             onClick={() => navigate(-1)}
             className="p-2 rounded-lg bg-gray-100 text-gray-700"
+            aria-label="رجوع"
+            title="رجوع"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -277,7 +279,7 @@ const UserProfile: React.FC = () => {
                 تاريخ إنشاء الحساب
               </label>
               <p className="text-gray-900">
-                {user.createdAt ? user.createdAt.toLocaleDateString('ar-SA') : 'غير محدد'}
+                {user.createdAt ? user.createdAt.toLocaleDateString('ar-SA-u-ca-gregory') : 'غير محدد'}
               </p>
             </div>
           </div>

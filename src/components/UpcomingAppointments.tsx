@@ -40,7 +40,7 @@ const UpcomingAppointments: React.FC<UpcomingAppointmentsProps> = ({
               <div className="flex-1">
                 <p className="font-medium text-gray-900 text-sm truncate">{appointment.title}</p>
                 <p className="text-xs text-gray-600">
-                  {appointment.when.toLocaleDateString('ar-SA')} - {appointment.when.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
+                  {appointment.when.toLocaleDateString('ar-SA-u-ca-gregory')} - {appointment.when.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
               <div className="text-right ml-2">

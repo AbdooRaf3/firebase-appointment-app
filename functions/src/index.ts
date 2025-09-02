@@ -36,7 +36,7 @@ export const onAppointmentCreated = functions.firestore
       await db.collection('notifications').add({
         userId: appointmentData.assignedToUid,
         title: 'موعد جديد',
-        message: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA')}`,
+        message: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA-u-ca-gregory')}`,
         type: 'appointment_created',
         appointmentId: appointmentId,
         isRead: false,
@@ -57,7 +57,7 @@ export const onAppointmentCreated = functions.firestore
           const fcmMessage = {
             notification: {
               title: 'موعد جديد',
-              body: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA')}`
+              body: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA-u-ca-gregory')}`
             },
             data: {
               appointmentId: appointmentId,
@@ -81,7 +81,7 @@ export const onAppointmentCreated = functions.firestore
         await db.collection('scheduledNotifications').add({
           userId: appointmentData.assignedToUid,
           title: 'تذكير بالموعد',
-          message: `موعدك القادم: "${appointmentData.title}" في الساعة ${appointmentTime.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`,
+          message: `موعدك القادم: "${appointmentData.title}" في الساعة ${appointmentTime.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' })}`,
           type: 'appointment_reminder',
           appointmentId: appointmentId,
           isRead: false,

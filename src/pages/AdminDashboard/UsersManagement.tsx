@@ -343,7 +343,7 @@ const UsersManagement: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.createdAt.toLocaleDateString('ar-SA')}
+                    {user.createdAt.toLocaleDateString('ar-SA-u-ca-gregory')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                          <div className="flex items-center space-x-2 space-x-reverse">

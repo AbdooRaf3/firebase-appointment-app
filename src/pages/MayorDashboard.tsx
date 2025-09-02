@@ -137,7 +137,7 @@ const MayorDashboard: React.FC = () => {
         if (hoursUntilAppointment <= 1 && hoursUntilAppointment > 0) {
           addToast({
             type: 'info',
-            message: `موعد قادم: ${appointment.title} في ${appointment.when.toLocaleTimeString('ar-SA')}`
+            message: `موعد قادم: ${appointment.title} في ${appointment.when.toLocaleTimeString('ar-SA-u-ca-gregory')}`
           });
         }
       });

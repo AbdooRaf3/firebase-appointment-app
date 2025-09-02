@@ -102,7 +102,7 @@ const NewAppointment: React.FC = () => {
         await sendNotification({
           userId: formData.assignedToUid,
           title: 'موعد جديد',
-          message: `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA')}`,
+          message: `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA-u-ca-gregory')}`,
           type: 'appointment_created',
           appointmentId: appointmentRef.id
         });
@@ -110,7 +110,7 @@ const NewAppointment: React.FC = () => {
         // إرسال إشعار للهاتف (مجاني)
         await sendPhoneNotification(
           'موعد جديد',
-          `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA')}`
+          `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA-u-ca-gregory')}`
         );
 
         // جدولة تنبيه قبل الموعد بساعة
@@ -119,7 +119,7 @@ const NewAppointment: React.FC = () => {
           await scheduleNotification({
             userId: formData.assignedToUid,
             title: 'تذكير بالموعد',
-            message: `موعدك القادم: "${formData.title}" في الساعة ${selectedDate.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`,
+            message: `موعدك القادم: "${formData.title}" في الساعة ${selectedDate.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' })}`,
             type: 'appointment_reminder',
             appointmentId: appointmentRef.id
           }, reminderTime);

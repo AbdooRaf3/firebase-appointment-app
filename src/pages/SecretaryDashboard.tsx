@@ -144,7 +144,7 @@ const SecretaryDashboard: React.FC = () => {
         if (hoursUntilAppointment <= 1 && hoursUntilAppointment > 0) {
           addToast({
             type: 'info',
-            message: `موعد قادم: ${appointment.title} في ${appointment.when.toLocaleTimeString('ar-SA')}`
+            message: `موعد قادم: ${appointment.title} في ${appointment.when.toLocaleTimeString('ar-SA-u-ca-gregory')}`
           });
         }
       });
@@ -256,8 +256,8 @@ const SecretaryDashboard: React.FC = () => {
       ...filteredAppointments.map(appointment => [
         appointment.title,
         appointment.description,
-        appointment.when.toLocaleDateString('ar-SA'),
-        appointment.when.toLocaleTimeString('ar-SA'),
+        appointment.when.toLocaleDateString('ar-SA-u-ca-gregory'),
+        appointment.when.toLocaleTimeString('ar-SA-u-ca-gregory'),
         appointment.status === 'done' ? 'مكتمل' : appointment.status === 'cancelled' ? 'ملغي' : 'في الانتظار',
         getUserById(appointment.createdByUid)?.displayName || 'غير محدد',
         getUserById(appointment.assignedToUid)?.displayName || 'غير محدد'
@@ -268,7 +268,7 @@ const SecretaryDashboard: React.FC = () => {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `مواعيد_${new Date().toLocaleDateString('ar-SA')}.csv`);
+    link.setAttribute('download', `مواعيد_${new Date().toLocaleDateString('ar-SA-u-ca-gregory')}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -288,8 +288,8 @@ const SecretaryDashboard: React.FC = () => {
       <div style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 8px;">
         <h3 style="margin: 0 0 10px 0; color: #333;">${appointment.title}</h3>
         <p style="margin: 5px 0; color: #666;">${appointment.description}</p>
-        <p style="margin: 5px 0;"><strong>التاريخ:</strong> ${appointment.when.toLocaleDateString('ar-SA')}</p>
-        <p style="margin: 5px 0;"><strong>الوقت:</strong> ${appointment.when.toLocaleTimeString('ar-SA')}</p>
+        <p style="margin: 5px 0;"><strong>التاريخ:</strong> ${appointment.when.toLocaleDateString('ar-SA-u-ca-gregory')}</p>
+        <p style="margin: 5px 0;"><strong>الوقت:</strong> ${appointment.when.toLocaleTimeString('ar-SA-u-ca-gregory')}</p>
         <p style="margin: 5px 0;"><strong>الحالة:</strong> ${appointment.status === 'done' ? 'مكتمل' : appointment.status === 'cancelled' ? 'ملغي' : 'في الانتظار'}</p>
         <p style="margin: 5px 0;"><strong>أنشأ بواسطة:</strong> ${getUserById(appointment.createdByUid)?.displayName || 'غير محدد'}</p>
         <p style="margin: 5px 0;"><strong>مخصص لـ:</strong> ${getUserById(appointment.assignedToUid)?.displayName || 'غير محدد'}</p>
@@ -310,7 +310,7 @@ const SecretaryDashboard: React.FC = () => {
         <body>
           <div class="header">
             <h1>مواعيد السكرتير</h1>
-            <p class="date">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA')}</p>
+            <p class="date">تاريخ الطباعة: ${new Date().toLocaleDateString('ar-SA-u-ca-gregory')}</p>
             <p class="date">عدد المواعيد: ${filteredAppointments.length}</p>
           </div>
           ${appointmentsHTML}

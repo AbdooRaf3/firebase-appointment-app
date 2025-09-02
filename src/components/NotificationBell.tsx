@@ -161,9 +161,9 @@ const NotificationBell: React.FC = () => {
     if (!date) return "—";
     try {
       if (date && typeof date === 'object' && 'toDate' in date) {
-        return (date as Timestamp).toDate().toLocaleString("ar-SA");
+        return (date as Timestamp).toDate().toLocaleString("ar-SA-u-ca-gregory");
       }
-      if (date instanceof Date) return date.toLocaleString("ar-SA");
+      if (date instanceof Date) return date.toLocaleString("ar-SA-u-ca-gregory");
       return String(date);
     } catch {
       return "—";

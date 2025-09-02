@@ -212,7 +212,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
       {/* مؤشرات إضافية للهواتف */}
       <div className="sm:hidden mt-3 pt-3 border-t border-gray-100">
         <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>تم الإنشاء: {appointment.createdAt?.toLocaleDateString('ar-SA')}</span>
+          <span>تم الإنشاء: {appointment.createdAt?.toLocaleDateString('ar-SA-u-ca-gregory')}</span>
           <span>ID: {appointment.id?.slice(-6)}</span>
         </div>
       </div>
