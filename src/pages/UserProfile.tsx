@@ -4,11 +4,13 @@ import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 
 import { db, auth } from '../firebase/firebaseClient';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
-import { User, Mail, Shield, Calendar, Edit, Save, X } from 'lucide-react';
+import { User, Mail, Shield, Calendar, Edit, Save, X, Lock, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const UserProfile: React.FC = () => {
   const { user, updateUser } = useAuthStore();
   const { addToast } = useToastStore();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -158,34 +160,48 @@ const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* العنوان */}
-      <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+    <div className="space-y-6 pb-20">
+      {/* شريط التنقل العلوي للهواتف */}
+      <div className="lg:hidden bg-white shadow-md p-4 sticky top-0 z-10">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-lg bg-gray-100 text-gray-700"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-xl font-bold text-gray-900">الملف الشخصي</h1>
+          <div className="w-10"></div> {/* Spacer for balance */}
+        </div>
+      </div>
+
+      {/* العنوان (للشاشات الكبيرة فقط) */}
+      <div className="hidden lg:block bg-white rounded-lg shadow p-6 border border-gray-200">
         <h1 className="text-3xl font-bold text-gray-900">الملف الشخصي</h1>
         <p className="text-gray-600 mt-2">إدارة معلومات حسابك وكلمة المرور</p>
       </div>
 
       {/* معلومات المستخدم */}
       <div className="bg-white rounded-lg shadow border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-4 lg:p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">معلومات المستخدم</h2>
+            <h2 className="text-lg lg:text-xl font-semibold text-gray-900">معلومات المستخدم</h2>
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="flex items-center space-x-2 space-x-reverse px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                className="flex items-center space-x-2 space-x-reverse px-3 py-2 lg:px-4 lg:py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors touch-target"
               >
                 <Edit className="w-4 h-4" />
-                <span>تعديل</span>
+                <span className="hidden lg:inline">تعديل</span>
               </button>
             ) : (
               <div className="flex items-center space-x-2 space-x-reverse">
                 <button
                   onClick={handleSaveProfile}
-                  className="flex items-center space-x-2 space-x-reverse px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  className="flex items-center space-x-2 space-x-reverse px-3 py-2 lg:px-4 lg:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors touch-target"
                 >
                   <Save className="w-4 h-4" />
-                  <span>حفظ</span>
+                  <span className="hidden lg:inline">حفظ</span>
                 </button>
                 <button
                   onClick={() => {
@@ -195,20 +211,20 @@ const UserProfile: React.FC = () => {
                       email: user.email || ''
                     });
                   }}
-                  className="flex items-center space-x-2 space-x-reverse px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  className="flex items-center space-x-2 space-x-reverse px-3 py-2 lg:px-4 lg:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors touch-target"
                 >
                   <X className="w-4 h-4" />
-                  <span>إلغاء</span>
+                  <span className="hidden lg:inline">إلغاء</span>
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-4 lg:p-6 space-y-4">
           {/* الاسم */}
           <div className="flex items-center space-x-4 space-x-reverse">
-            <User className="w-5 h-5 text-gray-400" />
+            <User className="w-5 h-5 text-gray-400 flex-shrink-0" />
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 الاسم
@@ -219,7 +235,7 @@ const UserProfile: React.FC = () => {
                   name="displayName"
                   value={formData.displayName}
                   onChange={handleInputChange}
-                  className="form-input w-full"
+                  className="form-input w-full p-3 text-sm"
                   placeholder="أدخل اسمك"
                 />
               ) : (
@@ -230,19 +246,19 @@ const UserProfile: React.FC = () => {
 
           {/* البريد الإلكتروني */}
           <div className="flex items-center space-x-4 space-x-reverse">
-            <Mail className="w-5 h-5 text-gray-400" />
+            <Mail className="w-5 h-5 text-gray-400 flex-shrink-0" />
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 البريد الإلكتروني
               </label>
-              <p className="text-gray-900">{user.email}</p>
+              <p className="text-gray-900 break-all">{user.email}</p>
               <p className="text-sm text-gray-500">لا يمكن تعديل البريد الإلكتروني</p>
             </div>
           </div>
 
           {/* الدور */}
           <div className="flex items-center space-x-4 space-x-reverse">
-            <Shield className="w-5 h-5 text-gray-400" />
+            <Shield className="w-5 h-5 text-gray-400 flex-shrink-0" />
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 الدور
@@ -255,7 +271,7 @@ const UserProfile: React.FC = () => {
 
           {/* تاريخ الإنشاء */}
           <div className="flex items-center space-x-4 space-x-reverse">
-            <Calendar className="w-5 h-5 text-gray-400" />
+            <Calendar className="w-5 h-5 text-gray-400 flex-shrink-0" />
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 تاريخ إنشاء الحساب
@@ -270,15 +286,16 @@ const UserProfile: React.FC = () => {
 
       {/* تغيير كلمة المرور */}
       <div className="bg-white rounded-lg shadow border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-4 lg:p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">تغيير كلمة المرور</h2>
+            <h2 className="text-lg lg:text-xl font-semibold text-gray-900">تغيير كلمة المرور</h2>
             {!isChangingPassword ? (
               <button
                 onClick={() => setIsChangingPassword(true)}
-                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                className="flex items-center space-x-2 space-x-reverse px-3 py-2 lg:px-4 lg:py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors touch-target"
               >
-                تغيير كلمة المرور
+                <Lock className="w-4 h-4" />
+                <span className="hidden lg:inline">تغيير كلمة المرور</span>
               </button>
             ) : (
               <button
@@ -290,16 +307,17 @@ const UserProfile: React.FC = () => {
                     confirmPassword: ''
                   });
                 }}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="flex items-center space-x-2 space-x-reverse px-3 py-2 lg:px-4 lg:py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors touch-target"
               >
-                إلغاء
+                <X className="w-4 h-4" />
+                <span className="hidden lg:inline">إلغاء</span>
               </button>
             )}
           </div>
         </div>
 
         {isChangingPassword && (
-          <div className="p-6 space-y-4">
+          <div className="p-4 lg:p-6 space-y-4">
             {/* كلمة المرور الحالية */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -310,7 +328,7 @@ const UserProfile: React.FC = () => {
                 name="currentPassword"
                 value={passwordData.currentPassword}
                 onChange={handlePasswordChange}
-                className="form-input w-full"
+                className="form-input w-full p-3 text-sm"
                 placeholder="أدخل كلمة المرور الحالية"
               />
             </div>
@@ -325,7 +343,7 @@ const UserProfile: React.FC = () => {
                 name="newPassword"
                 value={passwordData.newPassword}
                 onChange={handlePasswordChange}
-                className="form-input w-full"
+                className="form-input w-full p-3 text-sm"
                 placeholder="أدخل كلمة المرور الجديدة"
               />
               <p className="text-sm text-gray-500 mt-1">يجب أن تكون 6 أحرف على الأقل</p>
@@ -341,7 +359,7 @@ const UserProfile: React.FC = () => {
                 name="confirmPassword"
                 value={passwordData.confirmPassword}
                 onChange={handlePasswordChange}
-                className="form-input w-full"
+                className="form-input w-full p-3 text-sm"
                 placeholder="أعد إدخال كلمة المرور الجديدة"
               />
             </div>
@@ -350,7 +368,7 @@ const UserProfile: React.FC = () => {
             <div className="pt-4">
               <button
                 onClick={handleChangePassword}
-                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                className="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors touch-target"
               >
                 حفظ كلمة المرور الجديدة
               </button>
@@ -361,13 +379,40 @@ const UserProfile: React.FC = () => {
 
       {/* معلومات إضافية */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-lg font-medium text-blue-800 mb-2">معلومات مهمة</h3>
-        <ul className="text-blue-700 space-y-1 text-sm">
+        <h3 className="text-base lg:text-lg font-medium text-blue-800 mb-2">معلومات مهمة</h3>
+        <ul className="text-blue-700 space-y-1 text-xs lg:text-sm">
           <li>• لا يمكن تغيير البريد الإلكتروني بعد إنشاء الحساب</li>
           <li>• كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل</li>
           <li>• ستتم إعادة تسجيل دخولك بعد تغيير كلمة المرور</li>
           <li>• احتفظ بكلمة المرور في مكان آمن</li>
         </ul>
+      </div>
+
+      {/* شريط التنقل السفلي للهواتف */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
+        <div className="flex justify-around p-2">
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/dashboard' ? 'text-primary-600' : 'text-gray-600'}`}
+          >
+            <span className="text-2xl">📊</span>
+            <span className="text-xs mt-1">الرئيسية</span>
+          </button>
+          <button 
+            onClick={() => navigate('/appointments')}
+            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/appointments' ? 'text-primary-600' : 'text-gray-600'}`}
+          >
+            <span className="text-2xl">📅</span>
+            <span className="text-xs mt-1">المواعيد</span>
+          </button>
+          <button 
+            onClick={() => navigate('/profile')}
+            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/profile' ? 'text-primary-600' : 'text-gray-600'}`}
+          >
+            <span className="text-2xl">👤</span>
+            <span className="text-xs mt-1">الملف</span>
+          </button>
+        </div>
       </div>
     </div>
   );
