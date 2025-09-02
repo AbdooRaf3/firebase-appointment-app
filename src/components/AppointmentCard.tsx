@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, User, FileText, Edit, Trash2 } from 'lucide-react';
+import { Calendar, Clock, User, FileText, Edit, Trash2, CheckCircle, XCircle, Clock as ClockIcon } from 'lucide-react';
 import { Appointment, User as UserType } from '../types';
 import { formatSmartDate, formatTime } from '../utils/dateHelpers';
 
@@ -52,20 +52,65 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <ClockIcon className="w-4 h-4" />;
+      case 'done':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'cancelled':
+        return <XCircle className="w-4 h-4" />;
+      default:
+        return <ClockIcon className="w-4 h-4" />;
+    }
+  };
+
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     if (onStatusChange) {
       onStatusChange(appointment, event.target.value);
     }
   };
 
+  const isUpcoming = appointment.when > new Date() && appointment.status === 'pending';
+  const isToday = () => {
+    const today = new Date();
+    const appointmentDate = new Date(appointment.when);
+    return today.toDateString() === appointmentDate.toDateString();
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 hover:shadow-lg transition-shadow mobile-optimized">
-      {/* العنوان والحالة */}
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 hover:shadow-lg transition-all duration-200 mobile-optimized group">
+      {/* شريط الحالة العلوي */}
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{appointment.title}</h3>
-        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(appointment.status)}`}>
-          {getStatusText(appointment.status)}
-        </span>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold text-gray-900 truncate" title={appointment.title}>
+            {appointment.title}
+          </h3>
+          {isUpcoming && (
+            <div className="flex items-center mt-1 text-xs text-blue-600">
+              <ClockIcon className="w-3 h-3 mr-1" />
+              <span>موعد قادم</span>
+            </div>
+          )}
+          {isToday() && (
+            <div className="flex items-center mt-1 text-xs text-green-600">
+              <Calendar className="w-3 h-3 mr-1" />
+              <span>اليوم</span>
+            </div>
+          )}
+        </div>
+        
+        {/* شارة الحالة */}
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <span 
+            className={`inline-flex items-center space-x-1 space-x-reverse px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(appointment.status)}`}
+            role="status"
+            aria-label={`حالة الموعد: ${getStatusText(appointment.status)}`}
+          >
+            {getStatusIcon(appointment.status)}
+            <span>{getStatusText(appointment.status)}</span>
+          </span>
+        </div>
       </div>
 
       {/* الوصف */}
@@ -73,39 +118,39 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
         <div className="mb-4">
           <div className="flex items-start space-x-2 space-x-reverse">
             <FileText className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-            <p className="text-gray-600 text-sm">{appointment.description}</p>
+            <p className="text-gray-600 text-sm leading-relaxed">{appointment.description}</p>
           </div>
         </div>
       )}
 
       {/* التاريخ والوقت */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="flex items-center space-x-2 space-x-reverse">
+        <div className="flex items-center space-x-2 space-x-reverse p-2 bg-gray-50 rounded-lg">
           <Calendar className="w-4 h-4 text-gray-500" />
-          <span className="text-sm text-gray-600">{formatSmartDate(appointment.when)}</span>
+          <span className="text-sm text-gray-600 font-medium">{formatSmartDate(appointment.when)}</span>
         </div>
-        <div className="flex items-center space-x-2 space-x-reverse">
+        <div className="flex items-center space-x-2 space-x-reverse p-2 bg-gray-50 rounded-lg">
           <Clock className="w-4 h-4 text-gray-500" />
-          <span className="text-sm text-gray-600">{formatTime(appointment.when)}</span>
+          <span className="text-sm text-gray-600 font-medium">{formatTime(appointment.when)}</span>
         </div>
       </div>
 
       {/* المستخدمين */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div className="flex items-center space-x-2 space-x-reverse">
-          <User className="w-4 h-4 text-gray-500" />
+        <div className="flex items-center space-x-2 space-x-reverse p-2 bg-blue-50 rounded-lg">
+          <User className="w-4 h-4 text-blue-500" />
           <div className="text-sm">
-            <span className="text-gray-500">أنشأه:</span>
-            <span className="text-gray-900 font-medium mr-1">
+            <span className="text-blue-600 font-medium">أنشأه:</span>
+            <span className="text-gray-900 font-medium mr-1 block">
               {createdByUser?.displayName || 'غير محدد'}
             </span>
           </div>
         </div>
-        <div className="flex items-center space-x-2 space-x-reverse">
-          <User className="w-4 h-4 text-gray-500" />
+        <div className="flex items-center space-x-2 space-x-reverse p-2 bg-green-50 rounded-lg">
+          <User className="w-4 h-4 text-green-500" />
           <div className="text-sm">
-            <span className="text-gray-500">مخصص ل:</span>
-            <span className="text-gray-900 font-medium mr-1">
+            <span className="text-green-600 font-medium">مخصص ل:</span>
+            <span className="text-gray-900 font-medium mr-1 block">
               {assignedToUser?.displayName || 'غير محدد'}
             </span>
           </div>
@@ -118,7 +163,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canEdit && onEdit && (
             <button
               onClick={() => onEdit(appointment)}
-              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-md transition-colors touch-target"
+              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-md transition-colors touch-target focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              aria-label={`تعديل الموعد: ${appointment.title}`}
             >
               <Edit className="w-4 h-4" />
               <span>تعديل</span>
@@ -128,7 +174,8 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canDelete && onDelete && (
             <button
               onClick={() => onDelete(appointment)}
-              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors touch-target"
+              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors touch-target focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              aria-label={`حذف الموعد: ${appointment.title}`}
             >
               <Trash2 className="w-4 h-4" />
               <span>حذف</span>
@@ -138,16 +185,31 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
 
         {/* تغيير الحالة */}
         {canChangeStatus && onStatusChange && (
-          <select
-            value={appointment.status}
-            onChange={handleStatusChange}
-            className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent touch-target w-full sm:w-auto"
-          >
-            <option value="pending">في الانتظار</option>
-            <option value="done">مكتمل</option>
-            <option value="cancelled">ملغي</option>
-          </select>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor={`status-${appointment.id}`} className="text-xs font-medium text-gray-700">
+              تغيير الحالة:
+            </label>
+            <select
+              id={`status-${appointment.id}`}
+              value={appointment.status}
+              onChange={handleStatusChange}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent touch-target w-full sm:w-auto bg-white"
+              aria-label={`تغيير حالة الموعد: ${appointment.title}`}
+            >
+              <option value="pending">في الانتظار</option>
+              <option value="done">مكتمل</option>
+              <option value="cancelled">ملغي</option>
+            </select>
+          </div>
         )}
+      </div>
+
+      {/* مؤشرات إضافية للهواتف */}
+      <div className="sm:hidden mt-3 pt-3 border-t border-gray-100">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <span>تم الإنشاء: {appointment.createdAt?.toLocaleDateString('ar-SA')}</span>
+          <span>ID: {appointment.id?.slice(-6)}</span>
+        </div>
       </div>
     </div>
   );

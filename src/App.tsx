@@ -1,21 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { enableFirestorePersistence } from './firebase/enablePersistence';
 import Header from './components/Header';
 import ToastContainer from './components/Toast';
 import IOSOptimizations from './components/IOSOptimizations';
-import Login from './pages/Login';
-import UsersManagement from './pages/AdminDashboard/UsersManagement';
-import AppointmentsManagement from './pages/AdminDashboard/AppointmentsManagement';
-import MayorDashboard from './pages/MayorDashboard';
-import SecretaryDashboard from './pages/SecretaryDashboard';
-import NewAppointment from './pages/Appointments/NewAppointment';
-import AppointmentDetail from './pages/Appointments/AppointmentDetail';
-import AppointmentsList from './pages/Appointments/AppointmentsList';
-import UserProfile from './pages/UserProfile';
 
-// مكون الحماية للمسارات
+// Lazy Loading للمكونات لتحسين الأداء
+const Login = lazy(() => import('./pages/Login'));
+const UsersManagement = lazy(() => import('./pages/AdminDashboard/UsersManagement'));
+const AppointmentsManagement = lazy(() => import('./pages/AdminDashboard/AppointmentsManagement'));
+const MayorDashboard = lazy(() => import('./pages/MayorDashboard'));
+const SecretaryDashboard = lazy(() => import('./pages/SecretaryDashboard'));
+const NewAppointment = lazy(() => import('./pages/Appointments/NewAppointment'));
+const AppointmentDetail = lazy(() => import('./pages/Appointments/AppointmentDetail'));
+const AppointmentsList = lazy(() => import('./pages/Appointments/AppointmentsList'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
+
+// مكون التحميل المحسن
+const LoadingSpinner: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+      <p className="mt-4 text-gray-600">جاري التحميل...</p>
+      <div className="mt-2 text-xs text-gray-500">يرجى الانتظار...</div>
+    </div>
+  </div>
+);
+
+// مكون الحماية للمسارات مع Suspense
 const ProtectedRoute: React.FC<{ 
   children: React.ReactNode; 
   allowedRoles?: string[];
@@ -23,14 +36,7 @@ const ProtectedRoute: React.FC<{
   const { user, loading } = useAuthStore();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">جاري التحميل...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!user) {
@@ -41,7 +47,11 @@ const ProtectedRoute: React.FC<{
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      {children}
+    </Suspense>
+  );
 };
 
 // مكون لوحة المدير
