@@ -9,7 +9,7 @@ import MobileMenu from './MobileMenu';
 
 const Header: React.FC = () => {
   const { user, signOut } = useAuthStore();
-  const { checkNotificationPermission } = useNotificationStore();
+  const { checkNotificationPermission, setupPushNotifications } = useNotificationStore();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
@@ -20,6 +20,13 @@ const Header: React.FC = () => {
       checkNotificationPermission();
     }
   }, [user, checkNotificationPermission]);
+
+  // تفعيل تلقائي لإشعارات المتصفح إذا كان الإذن ممنوحاً مسبقاً
+  React.useEffect(() => {
+    if (user && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      setupPushNotifications();
+    }
+  }, [user, setupPushNotifications]);
 
   // إغلاق القائمة عند تغيير المسار
   React.useEffect(() => {
