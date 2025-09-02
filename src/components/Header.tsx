@@ -74,13 +74,13 @@ const Header: React.FC = () => {
           <div className="flex items-center">
             <Link 
               to="/" 
-              className="flex items-center space-x-2 space-x-reverse focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-lg p-1"
+              className="logo-brand focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-lg p-1"
               aria-label="العودة إلى الصفحة الرئيسية"
             >
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+              <div className="logo-icon">
                 <span className="text-white text-lg font-bold" aria-hidden="true">م</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">مواعيد رئيس البلدية</span>
+              <span className="logo-text">مواعيد رئيس البلدية</span>
             </Link>
           </div>
 
@@ -114,7 +114,7 @@ const Header: React.FC = () => {
                   onKeyDown={(e) => handleKeyDown(e, () => setIsNotificationsOpen(!isNotificationsOpen))}
                   className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                   aria-label="إشعارات"
-                  aria-expanded={isNotificationsOpen ? 'true' : 'false'}
+                  aria-expanded={isNotificationsOpen}
                   aria-haspopup="true"
                 >
                   <Bell className="w-5 h-5" />

@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* استيراد ملف الهوية البصرية */
+@import './styles/brand-identity.css';
+
 @layer base {
   /* رابط تخطي إلى المحتوى */
   .skip-link {
@@ -29,7 +32,7 @@
     -moz-osx-font-smoothing: grayscale;
     /* منع التمرير المرن على iOS */
     overscroll-behavior: contain;
-    /* منع التكبير التلقائي */
+    /* منع التكبير التلقائي - مخصص لـ iOS */
     -webkit-text-size-adjust: 100%;
     
     /* تحسين الأداء */

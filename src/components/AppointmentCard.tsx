@@ -79,7 +79,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 hover:shadow-lg transition-all duration-200 mobile-optimized group">
+    <div className="card-brand mobile-optimized group animate-fade-in-up">
       {/* شريط الحالة العلوي */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1 min-w-0">
@@ -103,7 +103,12 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
         {/* شارة الحالة */}
         <div className="flex items-center space-x-2 space-x-reverse">
           <span 
-            className={`inline-flex items-center space-x-1 space-x-reverse px-3 py-1 text-xs font-medium rounded-full border ${getStatusColor(appointment.status)}`}
+            className={`inline-flex items-center space-x-1 space-x-reverse px-3 py-1 text-xs font-medium rounded-full border-2 ${
+              appointment.status === 'pending' ? 'status-pending' :
+              appointment.status === 'done' ? 'status-success' :
+              appointment.status === 'cancelled' ? 'status-cancelled' :
+              'bg-gray-100 border-gray-200 text-gray-800'
+            }`}
             role="status"
             aria-label={`حالة الموعد: ${getStatusText(appointment.status)}`}
           >
@@ -163,7 +168,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canEdit && onEdit && (
             <button
               onClick={() => onEdit(appointment)}
-              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-md transition-colors touch-target focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+              className="btn-brand inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm touch-target"
               aria-label={`تعديل الموعد: ${appointment.title}`}
             >
               <Edit className="w-4 h-4" />
@@ -174,7 +179,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canDelete && onDelete && (
             <button
               onClick={() => onDelete(appointment)}
-              className="inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors touch-target focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              className="btn-error inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm touch-target"
               aria-label={`حذف الموعد: ${appointment.title}`}
             >
               <Trash2 className="w-4 h-4" />
@@ -193,7 +198,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               id={`status-${appointment.id}`}
               value={appointment.status}
               onChange={handleStatusChange}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent touch-target w-full sm:w-auto bg-white"
+              className="input-brand text-sm touch-target w-full sm:w-auto"
               aria-label={`تغيير حالة الموعد: ${appointment.title}`}
             >
               <option value="pending">في الانتظار</option>

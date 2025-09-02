@@ -1,0 +1,432 @@
+/* ===== الهوية البصرية المحسنة ===== */
+
+/* متغيرات CSS للألوان */
+:root {
+  /* الألوان الأساسية */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  
+  /* الألوان الثانوية */
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+  
+  /* ألوان الحالة */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #0ea5e9;
+  
+  /* الظلال */
+  --shadow-soft: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  --shadow-medium: 0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-strong: 0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.15);
+  
+  /* الانتقالات */
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.3s ease-out;
+  --transition-slow: 0.5s ease-out;
+}
+
+/* ===== الأنماط الأساسية ===== */
+
+/* تحسين الخطوط العربية */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
+/* تحسين النصوص العربية */
+.arabic-text {
+  font-family: 'Cairo', Arial, sans-serif;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-feature-settings: "liga" 1, "kern" 1;
+  font-feature-settings: "liga" 1, "kern" 1;
+}
+
+/* ===== الأزرار المحسنة ===== */
+
+.btn-brand {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+  color: white;
+  box-shadow: var(--shadow-soft);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-brand::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-brand:hover::before {
+  left: 100%;
+}
+
+.btn-brand:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.btn-brand:active {
+  transform: translateY(0);
+}
+
+.btn-brand:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+}
+
+/* أزرار الحالة */
+.btn-success {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-success) 0%, #16a34a 100%);
+  color: white;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-warning {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+  color: white;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-error {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
+  color: white;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-secondary {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-secondary-500) 0%, var(--color-secondary-600) 100%);
+  color: white;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== البطاقات المحسنة ===== */
+
+.card-brand {
+  @apply bg-white rounded-2xl p-6 transition-all duration-300;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  /* دعم backdrop-filter للمتصفحات المدعومة */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.card-brand:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+
+.card-brand:focus-within {
+  box-shadow: var(--shadow-strong);
+}
+
+/* بطاقة مع خلفية متدرجة */
+.card-gradient {
+  @apply rounded-2xl p-6 text-white transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.card-gradient:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* ===== النماذج المحسنة ===== */
+
+.input-brand {
+  @apply w-full px-4 py-3 rounded-xl border-2 transition-all duration-300;
+  border-color: var(--color-secondary-200);
+  background: white;
+  font-size: 16px;
+  color: var(--color-secondary-800);
+}
+
+.input-brand:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+  transform: translateY(-1px);
+}
+
+.input-brand::placeholder {
+  color: var(--color-secondary-400);
+}
+
+/* ===== التنبيهات والإشعارات ===== */
+
+.alert-success {
+  @apply p-4 rounded-xl border-l-4 transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-success) 0%, #16a34a 100%);
+  color: white;
+  border-left-color: #14532d;
+  box-shadow: var(--shadow-soft);
+}
+
+.alert-warning {
+  @apply p-4 rounded-xl border-l-4 transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%);
+  color: white;
+  border-left-color: #78350f;
+  box-shadow: var(--shadow-soft);
+}
+
+.alert-error {
+  @apply p-4 rounded-xl border-l-4 transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
+  color: white;
+  border-left-color: #7f1d1d;
+  box-shadow: var(--shadow-soft);
+}
+
+.alert-info {
+  @apply p-4 rounded-xl border-l-4 transition-all duration-300;
+  background: linear-gradient(135deg, var(--color-info) 0%, #0284c7 100%);
+  color: white;
+  border-left-color: #0c4a6e;
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== الرسوم المتحركة ===== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+/* ===== التحميل والانتظار ===== */
+
+.loading-spinner {
+  @apply w-8 h-8 rounded-full border-4 border-transparent;
+  border-top-color: var(--color-primary-500);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.skeleton {
+  @apply bg-gradient-to-r rounded-lg;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== تحسينات خاصة بالهواتف ===== */
+
+@media (max-width: 768px) {
+  .btn-brand,
+  .btn-success,
+  .btn-warning,
+  .btn-error,
+  .btn-secondary {
+    @apply w-full py-4 text-base;
+    min-height: 56px;
+  }
+  
+  .card-brand,
+  .card-gradient {
+    @apply rounded-xl p-4 mx-4;
+  }
+  
+  .input-brand {
+    @apply py-4 text-base;
+    min-height: 56px;
+  }
+  
+  .alert-success,
+  .alert-warning,
+  .alert-error,
+  .alert-info {
+    @apply mx-4 rounded-xl;
+  }
+}
+
+/* ===== تحسينات إمكانية الوصول ===== */
+
+/* تحسين التركيز */
+.focus-visible:focus {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+}
+
+/* تحسين التباين */
+.high-contrast {
+  filter: contrast(1.2);
+}
+
+/* تقليل الحركة للمستخدمين الذين يفضلون ذلك */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== تأثيرات خاصة ===== */
+
+/* تأثير التوهج */
+.glow-effect {
+  position: relative;
+}
+
+.glow-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  box-shadow: var(--shadow-glow);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-effect:hover::after {
+  opacity: 1;
+}
+
+/* تأثير العمق */
+.depth-effect {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.depth-effect:hover {
+  transform: rotateX(5deg) rotateY(5deg);
+}
+
+/* ===== أنماط خاصة بالحالات ===== */
+
+/* حالة النجاح */
+.status-success {
+  @apply bg-green-50 border-green-200 text-green-800;
+  border-left: 4px solid var(--color-success);
+}
+
+/* حالة الانتظار */
+.status-pending {
+  @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+  border-left: 4px solid var(--color-warning);
+}
+
+/* حالة الإلغاء */
+.status-cancelled {
+  @apply bg-red-50 border-red-200 text-red-800;
+  border-left: 4px solid var(--color-error);
+}
+
+/* ===== تحسينات الأداء ===== */
+
+.performance-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ===== أنماط خاصة بالشعار ===== */
+
+.logo-brand {
+  @apply flex items-center space-x-3 space-x-reverse;
+  font-family: 'Cairo', serif;
+  font-weight: 800;
+}
+
+.logo-icon {
+  @apply w-10 h-10 rounded-xl flex items-center justify-center;
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+  box-shadow: var(--shadow-soft);
+}
+
+.logo-text {
+  @apply text-xl font-bold;
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-800) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
