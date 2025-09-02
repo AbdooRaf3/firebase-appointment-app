@@ -114,7 +114,7 @@ const Header: React.FC = () => {
                   onKeyDown={(e) => handleKeyDown(e, () => setIsNotificationsOpen(!isNotificationsOpen))}
                   className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                   aria-label="إشعارات"
-                  aria-expanded={isNotificationsOpen}
+                  aria-expanded={isNotificationsOpen ? 'true' : 'false'}
                   aria-haspopup="true"
                 >
                   <Bell className="w-5 h-5" />
