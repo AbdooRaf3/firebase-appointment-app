@@ -4,6 +4,8 @@ import { db } from '../../firebase/firebaseClient';
 import { Appointment, User } from '../../types';
 import { useToastStore } from '../../store/toastStore';
 import AppointmentCard from '../../components/AppointmentCard';
+import QuickStats from '../../components/QuickStats';
+import AppointmentsFilters from '../../components/AppointmentsFilters';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
 const AppointmentsManagement: React.FC = () => {
@@ -122,9 +124,7 @@ const AppointmentsManagement: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusCount = (status: string) => {
-    return appointments.filter(app => app.status === status).length;
-  };
+
 
   if (loading) {
     return (
@@ -142,75 +142,23 @@ const AppointmentsManagement: React.FC = () => {
         <p className="text-gray-600">عرض وإدارة جميع المواعيد في النظام</p>
       </div>
 
-      {/* إحصائيات سريعة */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
-              <p className="text-2xl font-bold text-gray-900">{appointments.length}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">في الانتظار</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('pending')}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">مكتمل</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">ملغي</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('cancelled')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <QuickStats 
+        appointments={appointments}
+        onSetDateFilter={() => {}}
+        onSetStatusFilter={(status) => {
+          if (status !== 'all') setStatusFilter(status);
+        }}
+      />
 
-      {/* أدوات البحث والتصفية */}
-      <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* البحث */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="البحث في المواعيد..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-input"
-            />
-          </div>
-          
-          {/* تصفية الحالة */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-input"
-              title="تصفية حسب الحالة"
-            >
-              <option value="all">جميع الحالات</option>
-              <option value="pending">في الانتظار</option>
-              <option value="done">مكتمل</option>
-              <option value="cancelled">ملغي</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <AppointmentsFilters
+        appointments={appointments}
+        searchTerm={searchTerm}
+        statusFilter={statusFilter}
+        dateFilter="all"
+        onSearchChange={setSearchTerm}
+        onStatusFilterChange={setStatusFilter}
+        onDateFilterChange={() => {}}
+      />
 
       {/* قائمة المواعيد */}
       <div className="space-y-4">

@@ -6,6 +6,8 @@ import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
 import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
+import QuickStats from '../components/QuickStats';
+import UpcomingAppointments from '../components/UpcomingAppointments';
 import { useNavigate, useLocation } from 'react-router-dom';
 import FloatingActionButton from '../components/FloatingActionButton';
 import BottomNav from '../components/BottomNav';
@@ -201,27 +203,7 @@ const MayorDashboard: React.FC = () => {
     }
   };
 
-  const getStatusCount = (status: string) => {
-    return appointments.filter(app => app.status === status).length;
-  };
 
-  const getTodayCount = () => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    return appointments.filter(app => {
-      const appDate = new Date(app.when.getFullYear(), app.when.getMonth(), app.when.getDate());
-      return appDate.getTime() === today.getTime();
-    }).length;
-  };
-
-  const getUpcomingCount = () => {
-    const now = new Date();
-    return appointments.filter(app => app.when > now && app.status === 'pending').length;
-  };
-
-  const getCancelledCount = () => {
-    return appointments.filter(app => app.status === 'cancelled').length;
-  };
 
   if (loading) {
     return (
@@ -395,111 +377,27 @@ const MayorDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* إحصائيات سريعة */}
-        <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900">إحصائيات سريعة</h3>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div 
-              className="bg-white rounded-lg shadow p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" 
-              onClick={() => setFilter('all')}
-            >
-              <p className="text-xs font-medium text-gray-600">إجمالي المواعيد</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{appointments.length}</p>
-            </div>
+        <QuickStats 
+          appointments={appointments}
+          onSetDateFilter={(filter) => {
+            if (filter === 'today') setFilter('today');
+            else if (filter === 'upcoming') setFilter('upcoming');
+            else if (filter === 'past') setFilter('all');
+          }}
+          onSetStatusFilter={(status) => {
+            if (status === 'pending') setFilter('pending');
+            else if (status === 'done') setFilter('done');
+            else if (status === 'cancelled') setFilter('all');
+            else setFilter('all');
+          }}
+        />
 
-            <div 
-              className="bg-white rounded-lg shadow p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" 
-              onClick={() => setFilter('pending')}
-            >
-              <p className="text-xs font-medium text-gray-600">في الانتظار</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{getStatusCount('pending')}</p>
-            </div>
-
-            <div 
-              className="bg-white rounded-lg shadow p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" 
-              onClick={() => setFilter('done')}
-            >
-              <p className="text-xs font-medium text-gray-600">مكتمل</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{getStatusCount('done')}</p>
-            </div>
-
-            <div 
-              className="bg-white rounded-lg shadow p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" 
-              onClick={() => setFilter('today')}
-            >
-              <p className="text-xs font-medium text-gray-600">اليوم</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{getTodayCount()}</p>
-            </div>
-          </div>
-
-          {/* إحصائيات إضافية */}
-          <div className="grid grid-cols-2 gap-3">
-            <div 
-              className="bg-white rounded-lg shadow p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" 
-              onClick={() => setFilter('upcoming')}
-            >
-              <p className="text-xs font-medium text-gray-600">قادمة</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{getUpcomingCount()}</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-3 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
-              <p className="text-xs font-medium text-gray-600">ملغية</p>
-              <p className="text-xl font-bold text-gray-900 mt-1">{getCancelledCount()}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* إشعارات المواعيد القادمة */}
-        {upcomingNotifications.length > 0 && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <h3 className="text-sm font-medium text-yellow-800">مواعيد قادمة</h3>
-              </div>
-              <button
-                onClick={() => setFilter('upcoming')}
-                className="text-xs text-yellow-700 hover:text-yellow-800 underline"
-              >
-                عرض الكل
-              </button>
-            </div>
-            <div className="space-y-2">
-              {upcomingNotifications.slice(0, 2).map((appointment) => {
-                const timeDiff = appointment.when.getTime() - new Date().getTime();
-                const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60));
-
-                return (
-                  <div key={appointment.id} className="flex items-center justify-between bg-white p-2 rounded-lg border border-yellow-200">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm truncate">{appointment.title}</p>
-                      <p className="text-xs text-gray-600">
-                        {appointment.when.toLocaleDateString('ar-SA')} - {appointment.when.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <div className="text-right ml-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        hoursUntil <= 1 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {hoursUntil <= 1 ? 'قريباً' : `بعد ${hoursUntil} س`}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-              {upcomingNotifications.length > 2 && (
-                <p className="text-xs text-yellow-700 text-center">
-                  و {upcomingNotifications.length - 2} مواعيد أخرى قادمة
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+        <UpcomingAppointments 
+          upcomingNotifications={upcomingNotifications}
+          onSetDateFilter={(filter) => {
+            if (filter === 'upcoming') setFilter('upcoming');
+          }}
+        />
 
         {/* تصفية المواعيد */}
         <div className="bg-white rounded-lg shadow p-3 border border-gray-200">
@@ -522,7 +420,7 @@ const MayorDashboard: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              في الانتظار ({getStatusCount('pending')})
+              في الانتظار ({appointments.filter(app => app.status === 'pending').length})
             </button>
             <button
               onClick={() => setFilter('today')}
@@ -532,7 +430,12 @@ const MayorDashboard: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              اليوم ({getTodayCount()})
+              اليوم ({appointments.filter(app => {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const appDate = new Date(app.when.getFullYear(), app.when.getMonth(), app.when.getDate());
+                return appDate.getTime() === today.getTime();
+              }).length})
             </button>
             <button
               onClick={() => setFilter('upcoming')}
@@ -542,7 +445,7 @@ const MayorDashboard: React.FC = () => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              قادمة ({getUpcomingCount()})
+              قادمة ({appointments.filter(app => app.when > new Date() && app.status === 'pending').length})
             </button>
           </div>
         </div>
