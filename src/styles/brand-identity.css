@@ -1,3 +1,6 @@
+/* تحسين الخطوط العربية */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
+
 /* ===== الهوية البصرية المحسنة ===== */
 
 /* متغيرات CSS للألوان */
@@ -46,9 +49,6 @@
 
 /* ===== الأنماط الأساسية ===== */
 
-/* تحسين الخطوط العربية */
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap');
-
 /* تحسين النصوص العربية */
 .arabic-text {
   font-family: 'Cairo', Arial, sans-serif;
@@ -60,7 +60,7 @@
 
 /* ===== الأزرار المحسنة ===== */
 
-.btn-brand {
+.btn-brand, .btn-primary {
   @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
   background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
   color: white;
@@ -115,7 +115,7 @@
   box-shadow: var(--shadow-soft);
 }
 
-.btn-error {
+.btn-error, .btn-danger {
   @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
   background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
   color: white;
@@ -131,7 +131,7 @@
 
 /* ===== البطاقات المحسنة ===== */
 
-.card-brand {
+.card-brand, .card {
   @apply bg-white rounded-2xl p-6 transition-all duration-300;
   box-shadow: var(--shadow-soft);
   border: 1px solid rgba(226, 232, 240, 0.8);
@@ -163,7 +163,7 @@
 
 /* ===== النماذج المحسنة ===== */
 
-.input-brand {
+.input-brand, .form-input {
   @apply w-full px-4 py-3 rounded-xl border-2 transition-all duration-300;
   border-color: var(--color-secondary-200);
   background: white;
@@ -297,20 +297,24 @@
 
 @media (max-width: 768px) {
   .btn-brand,
+  .btn-primary,
   .btn-success,
   .btn-warning,
   .btn-error,
+  .btn-danger,
   .btn-secondary {
     @apply w-full py-4 text-base;
     min-height: 56px;
   }
   
   .card-brand,
+  .card,
   .card-gradient {
     @apply rounded-xl p-4 mx-4;
   }
   
-  .input-brand {
+  .input-brand,
+  .form-input {
     @apply py-4 text-base;
     min-height: 56px;
   }

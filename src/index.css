@@ -1,10 +1,10 @@
+/* استيراد ملف الهوية البصرية */
+@import './styles/brand-identity.css';
+
 /* Tailwind CSS directives - these are expected and will be processed by the build system */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* استيراد ملف الهوية البصرية */
-@import './styles/brand-identity.css';
 
 @layer base {
   /* رابط تخطي إلى المحتوى */
@@ -33,8 +33,14 @@
     /* منع التمرير المرن على iOS */
     overscroll-behavior: contain;
     /* منع التكبير التلقائي - مخصص لـ iOS */
-    /* ملاحظة: هذه الخاصية مخصصة لـ iOS فقط */
+    /* 
+     * ملاحظة: هذه الخاصية مخصصة لـ iOS فقط
+     * السبب: منع التكبير التلقائي للنصوص على أجهزة iOS
+     * المتصفحات الأخرى: لا تحتاج هذه الخاصية
+     * التوافق: iOS 9+ فقط
+     */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     
     /* تحسين الأداء */
     will-change: scroll-position;
@@ -47,8 +53,14 @@
     /* تحسين الأداء على الهواتف */
     -webkit-tap-highlight-color: transparent;
     /* منع التكبير عند النقر على الحقول في iOS */
-    /* ملاحظة: هذه الخاصية مخصصة لـ iOS فقط */
+    /* 
+     * ملاحظة: هذه الخاصية مخصصة لـ iOS فقط
+     * السبب: منع التكبير التلقائي للنصوص على أجهزة iOS
+     * المتصفحات الأخرى: لا تحتاج هذه الخاصية
+     * التوافق: iOS 9+ فقط
+     */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     
     /* تحسين التمرير */
     overscroll-behavior: none;
@@ -93,8 +105,14 @@
     /* تحسين الحدود */
     border-radius: 8px;
     /* منع التكبير */
-    /* ملاحظة: هذه الخاصية مخصصة لـ iOS فقط */
+    /* 
+     * ملاحظة: هذه الخاصية مخصصة لـ iOS فقط
+     * السبب: منع التكبير التلقائي للنصوص على أجهزة iOS
+     * المتصفحات الأخرى: لا تحتاج هذه الخاصية
+     * التوافق: iOS 9+ فقط
+     */
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     
     /* تحسين المظهر على iOS */
     -webkit-tap-highlight-color: transparent;
@@ -140,66 +158,23 @@
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200;
-    /* تحسين للهواتف */
-    min-height: 48px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .btn-secondary {
-    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-6 rounded-lg transition-colors duration-200;
-    /* تحسين للهواتف */
-    min-height: 48px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200;
-    /* تحسين للهواتف */
-    min-height: 48px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
-    /* تحسين للهواتف */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-  
-  .form-input {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
-    /* تحسين للهواتف */
-    min-height: 48px; /* الحد الأدنى للمس على iOS */
-    font-size: 16px; /* منع التكبير في iOS */
-    -webkit-appearance: none;
-    appearance: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
+  /* نقل تعريفات الأزرار/البطاقات/الحقول إلى brand-identity.css لتوحيد المصدر */
   .form-label {
     @apply block text-sm font-medium text-gray-700 mb-2;
   }
   
   /* تحسينات خاصة بالهواتف */
   .mobile-optimized {
-    /* تحسين المسافات للهواتف */
     @apply px-4 py-3;
   }
   
   .touch-target {
-    /* تحسين حجم الأهداف للمس */
     min-height: 48px;
     min-width: 48px;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
   
-  /* تحسين القوائم المنسدلة للهواتف */
   .mobile-dropdown {
     @apply fixed inset-0 z-50 bg-black bg-opacity-50;
     -webkit-backdrop-filter: blur(4px);
@@ -211,7 +186,6 @@
     max-height: 80vh;
     overflow-y: auto;
     overscroll-behavior: contain;
-    /* تحسين المنطقة الآمنة */
     padding-bottom: env(safe-area-inset-bottom);
   }
   
@@ -221,7 +195,6 @@
     }
   }
   
-  /* تحسين النماذج للهواتف */
   .mobile-form {
     @apply space-y-4;
   }
@@ -230,13 +203,11 @@
     @apply space-y-2;
   }
   
-  /* تحسين البطاقات للهواتف */
   .mobile-card {
     @apply bg-white rounded-lg shadow-sm p-4 border border-gray-200;
     margin: 0 16px;
   }
   
-  /* تحسين الأزرار للهواتف */
   .mobile-button {
     @apply w-full py-3 px-4 rounded-lg font-medium transition-colors;
     min-height: 48px;
@@ -252,7 +223,7 @@
     @apply px-4;
   }
   
-  /* تحسين الأزرار */
+  /* تحسين الأزرار - تبقى لكن التعريف الأساسي صار في brand-identity.css */
   .btn-primary, .btn-secondary, .btn-danger {
     @apply py-3 px-6 text-base w-full;
     min-height: 48px;

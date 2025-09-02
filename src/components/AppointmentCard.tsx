@@ -79,7 +79,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
   };
 
   return (
-    <div className="card-brand mobile-optimized group animate-fade-in-up">
+    <div className="card mobile-optimized group animate-fade-in-up">
       {/* شريط الحالة العلوي */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1 min-w-0">
@@ -168,7 +168,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canEdit && onEdit && (
             <button
               onClick={() => onEdit(appointment)}
-              className="btn-brand inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm touch-target"
+              className="btn-primary inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm touch-target"
               aria-label={`تعديل الموعد: ${appointment.title}`}
             >
               <Edit className="w-4 h-4" />
@@ -179,7 +179,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
           {canDelete && onDelete && (
             <button
               onClick={() => onDelete(appointment)}
-              className="btn-error inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm touch-target"
+              className="btn-danger inline-flex items-center space-x-1 space-x-reverse px-3 py-2 text-sm touch-target"
               aria-label={`حذف الموعد: ${appointment.title}`}
             >
               <Trash2 className="w-4 h-4" />
@@ -198,7 +198,7 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({
               id={`status-${appointment.id}`}
               value={appointment.status}
               onChange={handleStatusChange}
-              className="input-brand text-sm touch-target w-full sm:w-auto"
+              className="form-input text-sm touch-target w-full sm:w-auto"
               aria-label={`تغيير حالة الموعد: ${appointment.title}`}
             >
               <option value="pending">في الانتظار</option>
