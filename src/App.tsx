@@ -136,7 +136,7 @@ const App: React.FC = () => {
                 <ProtectedRoute allowedRoles={['admin']}>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <UsersManagement />
                     </main>
                   </div>
@@ -151,7 +151,7 @@ const App: React.FC = () => {
                 <ProtectedRoute allowedRoles={['admin']}>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <AppointmentsManagement />
                     </main>
                   </div>
@@ -166,7 +166,7 @@ const App: React.FC = () => {
                 <ProtectedRoute allowedRoles={['mayor']}>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <MayorDashboard />
                     </main>
                   </div>
@@ -181,7 +181,7 @@ const App: React.FC = () => {
                 <ProtectedRoute allowedRoles={['secretary']}>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <SecretaryDashboard />
                     </main>
                   </div>
@@ -196,7 +196,7 @@ const App: React.FC = () => {
                 <ProtectedRoute allowedRoles={['secretary', 'admin']}>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <NewAppointment />
                     </main>
                   </div>
@@ -211,7 +211,7 @@ const App: React.FC = () => {
                 <ProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <AppointmentsList />
                     </main>
                   </div>
@@ -226,7 +226,7 @@ const App: React.FC = () => {
                 <ProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <AppointmentDetail />
                     </main>
                   </div>
@@ -251,7 +251,7 @@ const App: React.FC = () => {
                 <ProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <Header />
-                    <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <main id="main-content" tabIndex={-1} className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                       <UserProfile />
                     </main>
                   </div>
