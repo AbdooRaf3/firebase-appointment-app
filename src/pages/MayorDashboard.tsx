@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
-import { useAuthStore } fromstore/authStore';
+import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
 import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
@@ -17,16 +17,30 @@ const MayorDashboard: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'today' | 'upcoming' | 'done'>('all');
   const [upcomingNotifications, setUpcomingNotifications] = useState<Appointment[]>([]);
   const [isNavOpen, setIsNavOpen] = useState(false);
 
+  // Debug logging
   useEffect(() => {
-    if (!user) return;
+    console.log('MayorDashboard: Component mounted');
+    console.log('MayorDashboard: User state:', user);
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      console.log('MayorDashboard: No user, redirecting to login');
+      navigate('/login');
+      return;
+    }
+
+    console.log('MayorDashboard: User authenticated, loading data');
 
     // تحميل المستخدمين
     const loadUsers = async () => {
       try {
+        console.log('MayorDashboard: Loading users...');
         const usersRef = collection(db, 'users');
         const snapshot = await getDocs(usersRef);
         const usersData: User[] = [];
@@ -41,50 +55,63 @@ const MayorDashboard: React.FC = () => {
           });
         });
         setUsers(usersData);
+        console.log('MayorDashboard: Users loaded:', usersData.length);
       } catch (error) {
-        console.error('فشل في تحميل المستخدمين:', error);
+        console.error('MayorDashboard: Failed to load users:', error);
+        setError('فشل في تحميل المستخدمين');
       }
     };
 
     loadUsers();
 
     // الاستماع للمواعيد المخصصة لرئيس البلدية
-    const appointmentsRef = collection(db, 'appointments');
-    const q = query(
-      appointmentsRef,
-      where('assignedToUid', '==', user.uid),
-      orderBy('when', 'asc')
-    );
+    try {
+      console.log('MayorDashboard: Setting up appointments listener...');
+      const appointmentsRef = collection(db, 'appointments');
+      const q = query(
+        appointmentsRef,
+        where('assignedToUid', '==', user.uid),
+        orderBy('when', 'asc')
+      );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const appointmentsData: Appointment[] = [];
-      snapshot.forEach((d) => {
-        const data = d.data();
-        appointmentsData.push({
-          id: d.id,
-          title: data.title,
-          description: data.description,
-          when: data.when?.toDate ? data.when.toDate() : data.when,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-          createdByUid: data.createdByUid,
-          assignedToUid: data.assignedToUid,
-          status: data.status
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        console.log('MayorDashboard: Appointments snapshot received:', snapshot.size);
+        const appointmentsData: Appointment[] = [];
+        snapshot.forEach((d) => {
+          const data = d.data();
+          appointmentsData.push({
+            id: d.id,
+            title: data.title,
+            description: data.description,
+            when: data.when?.toDate ? data.when.toDate() : data.when,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+            createdByUid: data.createdByUid,
+            assignedToUid: data.assignedToUid,
+            status: data.status
+          });
+        });
+
+        setAppointments(appointmentsData);
+        setLoading(false);
+        setError(null);
+        console.log('MayorDashboard: Appointments loaded:', appointmentsData.length);
+      }, (error) => {
+        console.error('MayorDashboard: Failed to listen to appointments:', error);
+        setError('فشل في تحميل المواعيد');
+        setLoading(false);
+        addToast({
+          type: 'error',
+          message: 'فشل في تحميل المواعيد'
         });
       });
 
-      setAppointments(appointmentsData);
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('MayorDashboard: Error setting up appointments listener:', error);
+      setError('فشل في إعداد مستمع المواعيد');
       setLoading(false);
-    }, (error) => {
-      console.error('فشل في الاستماع للمواعيد:', error);
-      addToast({
-        type: 'error',
-        message: 'فشل في تحميل المواعيد'
-      });
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user, addToast]);
+    }
+  }, [user, addToast, navigate]);
 
   // التحقق من المواعيد القادمة
   useEffect(() => {
@@ -147,9 +174,15 @@ const MayorDashboard: React.FC = () => {
         message: 'تم تحديث حالة الموعد بنجاح'
       });
     } catch (error: any) {
+      console.error('MayorDashboard: Failed to update appointment status:', error);
       addToast({
         type: 'error',
- const getUserById = (uid: string): User | undefined => {
+        message: 'فشل في تحديث حالة الموعد'
+      });
+    }
+  };
+
+  const getUserById = (uid: string): User | undefined => {
     return users.find(u => u.uid === uid);
   };
 
@@ -163,7 +196,8 @@ const MayorDashboard: React.FC = () => {
       case 'today':
         return appointments.filter(app => {
           const appDate = new Date(app.when.getFullYear(), app.when.getMonth(), app.when.getDate());
-          return appDate.getTime() ===        });
+          return appDate.getTime() === today.getTime();
+        });
       case 'upcoming':
         return appointments.filter(app => app.when > now && app.status === 'pending');
       case 'done':
@@ -195,15 +229,64 @@ const MayorDashboard: React.FC = () => {
     return appointments.filter(app => app.status === 'cancelled').length;
   };
 
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-600 text-xl mb-4">⚠️</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">حدث خطأ</h3>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show no user state
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-gray-400 text-xl mb-4">👤</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">غير مسجل الدخول</h3>
+          <p className="text-gray-600 mb-4">يرجى تسجيل الدخول للوصول إلى لوحة التحكم</p>
+          <button
+            onClick={() => navigate('/login')}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+          >
+            تسجيل الدخول
+          </button>
+        </div>
       </div>
     );
   }
 
   const filteredAppointments = getFilteredAppointments();
+
+  console.log('MayorDashboard: Rendering dashboard with:', {
+    user: user?.displayName,
+    appointmentsCount: appointments.length,
+    filteredCount: filteredAppointments.length,
+    filter
+  });
 
   // نضيف padding bottom يحسب مساحة الشريط + safe area حتى لا يغطي الشريط محتوى الصفحة.
   return (
