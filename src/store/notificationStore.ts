@@ -258,7 +258,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
              // الحصول على توكن الإشعارات
        const messaging = getMessaging();
        const token = await getToken(messaging, {
-         vapidKey: import.meta.env.VITE_FCM_VAPID_KEY
+         vapidKey: import.meta.env.VITE_FCM_VAPID_KEY,
+         serviceWorkerRegistration: registration
        });
 
       if (token) {
@@ -277,16 +278,18 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       }
 
              // الاستماع للإشعارات الواردة (عندما يكون التطبيق مفتوح)
-       onMessage(messaging, (payload) => {
+       onMessage(messaging, async (payload) => {
          console.log('تم استلام إشعار (التطبيق مفتوح):', payload);
          
-         // عرض الإشعار في المتصفح
+         // عرض الإشعار في المتصفح عبر SW ليظهر على شاشة القفل
          if (payload.notification) {
-           new Notification(payload.notification.title || 'إشعار جديد', {
+           const swReg = await navigator.serviceWorker.ready;
+           await swReg.showNotification(payload.notification.title || 'إشعار جديد', {
              body: payload.notification.body,
              icon: '/icon-192x192.png',
              badge: '/icon-192x192.png',
              tag: 'appointment-notification',
+             data: payload.data || {},
              requireInteraction: true
            });
          }
