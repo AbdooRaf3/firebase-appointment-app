@@ -32,17 +32,13 @@
     overscroll-behavior: none;
     /* منع التمرير الأفقي */
     overflow-x: hidden;
-    /* تحسين الأداء */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    /* إزالة translateZ لتفادي مشاكل fixed على iOS */
   }
   
   /* تحسين مظهر النصوص العربية */
   * {
     font-family: inherit;
-    /* تحسين الأداء */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    /* تجنب فرض translateZ عالمياً لأنه يؤثر على fixed */
   }
   
   /* تحسين مظهر الأزرار للنصوص العربية */

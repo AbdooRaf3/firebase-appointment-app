@@ -7,6 +7,7 @@ import { useToastStore } from '../store/toastStore';
 import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
 import { useNavigate, useLocation } from 'react-router-dom';
+import FloatingActionButton from '../components/FloatingActionButton';
 import BottomNav from '../components/BottomNav';
 
 const MayorDashboard: React.FC = () => {
@@ -557,6 +558,13 @@ const MayorDashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* زر عائم لفتح صفحة المواعيد بسرعة */}
+      <FloatingActionButton
+        onClick={() => navigate('/appointments')}
+        label="المواعيد"
+        ariaLabel="فتح صفحة المواعيد"
+      />
 
       <BottomNav
         items={[

@@ -8,6 +8,7 @@ import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 import BottomNav from '../components/BottomNav';
+import FloatingActionButton from '../components/FloatingActionButton';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 
@@ -941,6 +942,13 @@ const SecretaryDashboard: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* زر عائم لإنشاء موعد جديد بسرعة */}
+      <FloatingActionButton
+        onClick={() => navigate('/appointments/new')}
+        label="موعد جديد"
+        ariaLabel="إنشاء موعد جديد"
+      />
 
       <BottomNav
         items={[
