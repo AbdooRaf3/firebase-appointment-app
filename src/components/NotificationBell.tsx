@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { Timestamp } from "firebase/firestore";
 import { useNotificationStore } from "../store/notificationStore";
 import { useAuthStore } from "../store/authStore";
+import "./NotificationBell.css";
 
 type AppNotification = {
   id?: string;
   type?: string;
   title?: string;
   message?: string;
-  createdAt?: any;
+  createdAt?: Date | Timestamp | string | number;
   isRead?: boolean;
 };
 
@@ -155,10 +157,12 @@ const NotificationBell: React.FC = () => {
         return "border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50";
     }
   };
-  const formatDate = (date?: any) => {
+  const formatDate = (date?: Date | Timestamp | string | number) => {
     if (!date) return "—";
     try {
-      if (date.toDate) return date.toDate().toLocaleString("ar-SA");
+      if (date && typeof date === 'object' && 'toDate' in date) {
+        return (date as Timestamp).toDate().toLocaleString("ar-SA");
+      }
       if (date instanceof Date) return date.toLocaleString("ar-SA");
       return String(date);
     } catch {
@@ -314,12 +318,8 @@ const NotificationBell: React.FC = () => {
             <div
               ref={modalRef}
               tabIndex={-1}
-              className="w-full bg-white rounded-t-2xl shadow-2xl border overflow-y-auto outline-none transition-transform duration-300"
-              style={{
-                maxHeight: "80vh",
-                transform: `translateY(${dragOffset}px)`,
-                paddingBottom: "env(safe-area-inset-bottom)",
-              }}
+              className={`w-full bg-white rounded-t-2xl shadow-2xl border overflow-y-auto outline-none transition-transform duration-300 notification-modal-mobile ${dragOffset > 0 ? 'notification-modal-dragging' : ''}`}
+              data-drag-offset={Math.round(dragOffset)}
               onClick={(e) => e.stopPropagation()}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}

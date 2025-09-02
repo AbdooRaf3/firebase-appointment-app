@@ -1,0 +1,56 @@
+/* NotificationBell Component Styles */
+.notification-modal-mobile {
+  max-height: 80vh;
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(var(--drag-offset, 0px));
+  transition: transform 0.3s ease-out;
+}
+
+.notification-modal-dragging {
+  /* Enhanced visual feedback during dragging */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(var(--drag-offset, 0px)) scale(0.98);
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+/* CSS Custom Properties for dynamic transform */
+.notification-modal-mobile[data-drag-offset="0"] {
+  --drag-offset: 0px;
+}
+
+.notification-modal-mobile[data-drag-offset="1"] {
+  --drag-offset: 1px;
+}
+
+.notification-modal-mobile[data-drag-offset="2"] {
+  --drag-offset: 2px;
+}
+
+.notification-modal-mobile[data-drag-offset="3"] {
+  --drag-offset: 3px;
+}
+
+.notification-modal-mobile[data-drag-offset="4"] {
+  --drag-offset: 4px;
+}
+
+.notification-modal-mobile[data-drag-offset="5"] {
+  --drag-offset: 5px;
+}
+
+/* Add more granular steps if needed */
+.notification-modal-mobile[data-drag-offset="10"] {
+  --drag-offset: 10px;
+}
+
+.notification-modal-mobile[data-drag-offset="20"] {
+  --drag-offset: 20px;
+}
+
+.notification-modal-mobile[data-drag-offset="50"] {
+  --drag-offset: 50px;
+}
+
+.notification-modal-mobile[data-drag-offset="100"] {
+  --drag-offset: 100px;
+}
