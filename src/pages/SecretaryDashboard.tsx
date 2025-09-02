@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs, limit } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
 import { useAuthStore } from '../store/authStore';
@@ -61,36 +61,56 @@ const SecretaryDashboard: React.FC = () => {
     const q = query(
       appointmentsRef,
       where('createdByUid', '==', user.uid),
-      orderBy('when', 'desc')
+      orderBy('when', 'desc'),
+      limit(50)
     );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const appointmentsData: Appointment[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        appointmentsData.push({
-          id: doc.id,
-          title: data.title,
-          description: data.description,
-          when: data.when.toDate(),
-          createdAt: data.createdAt.toDate(),
-          createdByUid: data.createdByUid,
-          assignedToUid: data.assignedToUid,
-          status: data.status
+    let unsubscribeActive: (() => void) | null = null;
+    const start = () => {
+      unsubscribeActive = onSnapshot(q, (snapshot) => {
+        const appointmentsData: Appointment[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          appointmentsData.push({
+            id: doc.id,
+            title: data.title,
+            description: data.description,
+            when: data.when.toDate(),
+            createdAt: data.createdAt.toDate(),
+            createdByUid: data.createdByUid,
+            assignedToUid: data.assignedToUid,
+            status: data.status
+          });
         });
+        
+        setAppointments(appointmentsData);
+        setLoading(false);
+      }, (_error) => {
+        addToast({
+          type: 'error',
+          message: 'فشل في تحميل المواعيد'
+        });
+        setLoading(false);
       });
-      
-      setAppointments(appointmentsData);
-      setLoading(false);
-    }, (_error) => {
-      addToast({
-        type: 'error',
-        message: 'فشل في تحميل المواعيد'
-      });
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        if (!unsubscribeActive) start();
+      } else {
+        if (unsubscribeActive) {
+          unsubscribeActive();
+          unsubscribeActive = null;
+        }
+      }
+    };
+
+    if (document.visibilityState === 'visible') start();
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (unsubscribeActive) unsubscribeActive();
+    };
   }, [user, addToast]);
 
   // التحقق من المواعيد القادمة
@@ -464,7 +484,7 @@ const SecretaryDashboard: React.FC = () => {
           <div className="lg:hidden fixed right-0 top-0 h-full w-72 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
             <div className="p-4 border-b flex justify-between items-center">
               <h2 className="text-lg font-semibold">القائمة الرئيسية</h2>
-              <button onClick={() => setIsNavOpen(false)} className="text-gray-500">
+              <button onClick={() => setIsNavOpen(false)} className="text-gray-500" aria-label="إغلاق القائمة" title="إغلاق">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

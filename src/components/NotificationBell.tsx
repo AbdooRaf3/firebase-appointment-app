@@ -44,12 +44,14 @@ const NotificationBell: React.FC = () => {
     return () => mq.removeEventListener?.("change", apply);
   }, []);
 
-  // تحميل/إلغاء الاشتراك
+  // الاشتراك فقط عند فتح اللوحة لتقليل القراءات
   useEffect(() => {
     if (!user?.uid) return;
-    loadNotifications(user.uid);
-    return () => unsubscribeFromNotifications();
-  }, [user, loadNotifications, unsubscribeFromNotifications]);
+    if (isOpen) {
+      loadNotifications(user.uid);
+      return () => unsubscribeFromNotifications();
+    }
+  }, [user, isOpen, loadNotifications, unsubscribeFromNotifications]);
 
   // إغلاق بالـ Escape
   useEffect(() => {

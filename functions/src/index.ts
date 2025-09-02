@@ -8,86 +8,12 @@ const db = admin.firestore();
 const messaging = admin.messaging();
 
 // إرسال الإشعارات المجدولة
-export const sendScheduledNotifications = functions.pubsub
-  .schedule('every 1 minutes')
-  .onRun(async (context) => {
-    try {
-      const now = admin.firestore.Timestamp.now();
-      
-      // البحث عن الإشعارات المجدولة للإرسال
-      const scheduledNotificationsRef = db.collection('scheduledNotifications');
-      const snapshot = await scheduledNotificationsRef
-        .where('scheduledFor', '<=', now)
-        .where('isSent', '==', false)
-        .get();
-
-      const batch = db.batch();
-      const notificationsToSend: any[] = [];
-
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        
-        // إضافة الإشعار إلى مجموعة الإشعارات
-        const notificationRef = db.collection('notifications').doc();
-        batch.set(notificationRef, {
-          userId: data.userId,
-          title: data.title,
-          message: data.message,
-          type: data.type,
-          appointmentId: data.appointmentId,
-          isRead: false,
-          createdAt: now
-        });
-
-        // تحديث حالة الإشعار المجدول
-        batch.update(doc.ref, { isSent: true });
-
-        notificationsToSend.push({
-          userId: data.userId,
-          title: data.title,
-          message: data.message
-        });
-      });
-
-      // تنفيذ العمليات
-      await batch.commit();
-
-      // إرسال إشعارات Push (إذا كان لديك FCM)
-      for (const notification of notificationsToSend) {
-        try {
-          // البحث عن توكنات المستخدم
-          const userTokensRef = db.collection('deviceTokens');
-          const userTokensSnapshot = await userTokensRef
-            .where('uid', '==', notification.userId)
-            .get();
-
-          if (!userTokensSnapshot.empty) {
-            const tokens = userTokensSnapshot.docs.map(doc => doc.data().token);
-            
-            // إرسال إشعار FCM
-            const message = {
-              notification: {
-                title: notification.title,
-                body: notification.message
-              },
-              tokens: tokens
-            };
-
-            const response = await admin.messaging().sendMulticast(message);
-            console.log('تم إرسال الإشعارات:', response.successCount, 'من', response.responses.length);
-          }
-        } catch (error) {
-          console.error('فشل في إرسال إشعار FCM:', error);
-        }
-      }
-
-      console.log(`تم معالجة ${snapshot.size} إشعار مجدول`);
-      return null;
-    } catch (error) {
-      console.error('فشل في معالجة الإشعارات المجدولة:', error);
-      return null;
-    }
-  });
+// ملاحظة: تم تعطيل وظيفة الجدولة للحفاظ على الخطة المجانية (Spark)
+// كانت الوظيفة تستخدم Cloud Scheduler الذي يتطلب خطة Blaze عند الاستدعاء المتكرر.
+// إذا لزم الأمر لاحقاً، يمكن استبدالها بـ onWrite trigger أو تنفيذ يدوي عبر HTTPS Callable.
+export const sendScheduledNotifications = functions.https.onRequest((_req, res) => {
+  res.status(200).send('Scheduled notifications disabled on free plan.');
+});
 
 // إرسال إشعار عند إنشاء موعد جديد
 export const onAppointmentCreated = functions.firestore

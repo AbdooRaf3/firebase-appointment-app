@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp, doc, updateDoc, deleteDoc, limit } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getAuth } from 'firebase/auth';
@@ -146,7 +146,10 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       const q = query(
         notificationsRef,
         where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
+        // تقليل عدد الوثائق المقروءة للحفاظ على الخطة المجانية
+        // عند الحاجة يمكن إضافة زر "تحميل المزيد"
+        limit(20)
       );
 
       const unsubscribe = onSnapshot(q, (snapshot) => {

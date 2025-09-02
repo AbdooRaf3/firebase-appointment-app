@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs, where } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs, where, limit } from 'firebase/firestore';
 import { db } from '../../firebase/firebaseClient';
 import { Appointment, User } from '../../types';
 import { useAuthStore } from '../../store/authStore';
@@ -55,51 +55,74 @@ const AppointmentsList: React.FC = () => {
       q = query(
         collection(db, 'appointments'),
         where('createdByUid', '==', user.uid),
-        orderBy('when', 'desc')
+        orderBy('when', 'desc'),
+        limit(50)
       );
     } else if (user.role === 'mayor') {
       // رئيس البلدية يرى المواعيد المخصصة له
       q = query(
         collection(db, 'appointments'),
         where('assignedToUid', '==', user.uid),
-        orderBy('when', 'desc')
+        orderBy('when', 'desc'),
+        limit(50)
       );
     } else {
       // المدير يرى جميع المواعيد
       q = query(
         collection(db, 'appointments'),
-        orderBy('when', 'desc')
+        orderBy('when', 'desc'),
+        limit(50)
       );
     }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const appointmentsData: Appointment[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        appointmentsData.push({
-          id: doc.id,
-          title: data.title,
-          description: data.description,
-          when: data.when.toDate(),
-          createdAt: data.createdAt.toDate(),
-          createdByUid: data.createdByUid,
-          assignedToUid: data.assignedToUid,
-          status: data.status
+    let unsubscribeActive: (() => void) | null = null;
+    const start = () => {
+      unsubscribeActive = onSnapshot(q, (snapshot) => {
+        const appointmentsData: Appointment[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          appointmentsData.push({
+            id: doc.id,
+            title: data.title,
+            description: data.description,
+            when: data.when.toDate(),
+            createdAt: data.createdAt.toDate(),
+            createdByUid: data.createdByUid,
+            assignedToUid: data.assignedToUid,
+            status: data.status
+          });
         });
+        
+        setAppointments(appointmentsData);
+        setLoading(false);
+      }, (error) => {
+        console.error('فشل في الاستماع للمواعيد:', error);
+        addToast({
+          type: 'error',
+          message: 'فشل في تحميل المواعيد'
+        });
+        setLoading(false);
       });
-      
-      setAppointments(appointmentsData);
-      setLoading(false);
-    }, (error) => {
-      console.error('فشل في الاستماع للمواعيد:', error);
-      addToast({
-        type: 'error',
-        message: 'فشل في تحميل المواعيد'
-      });
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        if (!unsubscribeActive) start();
+      } else {
+        if (unsubscribeActive) {
+          unsubscribeActive();
+          unsubscribeActive = null;
+        }
+      }
+    };
+
+    if (document.visibilityState === 'visible') start();
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (unsubscribeActive) unsubscribeActive();
+    };
   }, [user, addToast]);
 
   const handleStatusChange = async (appointment: Appointment, newStatus: string) => {
