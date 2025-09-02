@@ -933,7 +933,6 @@ const SecretaryDashboard: React.FC = () => {
                     canEdit={true}
                     canDelete={true}
                     canChangeStatus={true}
-                    compact={true}
                   />
                 ))
               )}

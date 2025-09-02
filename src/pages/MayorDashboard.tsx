@@ -542,17 +542,16 @@ const MayorDashboard: React.FC = () => {
             </div>
           ) : (
             filteredAppointments.map((appointment) => (
-              <AppointmentCard
-                key={appointment.id}
-                appointment={appointment}
-                createdByUser={getUserById(appointment.createdByUid)}
-                assignedToUser={getUserById(appointment.assignedToUid)}
-                onStatusChange={handleStatusChange}
-                canEdit={false}
-                canDelete={false}
-                canChangeStatus={true}
-                compact={true}
-              />
+                             <AppointmentCard
+                 key={appointment.id}
+                 appointment={appointment}
+                 createdByUser={getUserById(appointment.createdByUid)}
+                 assignedToUser={getUserById(appointment.assignedToUid)}
+                 onStatusChange={handleStatusChange}
+                 canEdit={false}
+                 canDelete={false}
+                 canChangeStatus={true}
+               />
             ))
           )}
         </div>
