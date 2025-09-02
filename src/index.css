@@ -10,11 +10,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     /* منع التمرير المرن على iOS */
-    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     /* منع التكبير التلقائي */
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+    
     /* تحسين الأداء */
     will-change: scroll-position;
   }
@@ -27,7 +26,7 @@
     -webkit-tap-highlight-color: transparent;
     /* منع التكبير عند النقر على الحقول في iOS */
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+    
     /* تحسين التمرير */
     overscroll-behavior: none;
     /* منع التمرير الأفقي */
@@ -72,15 +71,17 @@
     border-radius: 8px;
     /* منع التكبير */
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+    
     /* تحسين المظهر على iOS */
     -webkit-tap-highlight-color: transparent;
   }
   
   /* تحسين التمرير على الهواتف */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e0 #f7fafc;
+  @supports (scrollbar-width: thin) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e0 #f7fafc;
+    }
   }
   
   *::-webkit-scrollbar {
@@ -108,7 +109,6 @@
   
   /* تحسين الصور */
   img {
-    -webkit-user-drag: none;
     -webkit-touch-callout: none;
     /* Use standard draggable attribute instead of user-drag */
     pointer-events: none;
@@ -186,10 +186,15 @@
     @apply fixed bottom-0 left-0 right-0 bg-white rounded-t-lg shadow-lg;
     max-height: 80vh;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     /* تحسين المنطقة الآمنة */
     padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  @supports (-webkit-overflow-scrolling: touch) {
+    .mobile-dropdown-content {
+      -webkit-overflow-scrolling: touch;
+    }
   }
   
   /* تحسين النماذج للهواتف */
@@ -265,8 +270,12 @@
   /* تحسين قائمة الإشعارات */
   .notification-list {
     max-height: 60vh;
-    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+  @supports (-webkit-overflow-scrolling: touch) {
+    .notification-list {
+      -webkit-overflow-scrolling: touch;
+    }
   }
   
   /* تحسين الجداول */
@@ -296,8 +305,12 @@
   
   /* تحسين التمرير */
   .ios-scroll {
-    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+  }
+  @supports (-webkit-overflow-scrolling: touch) {
+    .ios-scroll {
+      -webkit-overflow-scrolling: touch;
+    }
   }
   
   /* تحسين الأزرار */

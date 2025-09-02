@@ -113,7 +113,7 @@ const Header: React.FC = () => {
                   onKeyDown={(e) => handleKeyDown(e, () => setIsNotificationsOpen(!isNotificationsOpen))}
                   className="p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                   aria-label="إشعارات"
-                  aria-expanded={isNotificationsOpen.toString()}
+                  aria-expanded={isNotificationsOpen ? 'true' : 'false'}
                   aria-haspopup="true"
                 >
                   <Bell className="w-5 h-5" />
@@ -202,7 +202,7 @@ const Header: React.FC = () => {
               onKeyDown={(e) => handleKeyDown(e, () => setIsMenuOpen(!isMenuOpen))}
               className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               aria-label="فتح القائمة"
-                             aria-expanded={isMenuOpen.toString()}
+              aria-expanded={isMenuOpen ? 'true' : 'false'}
               aria-controls="mobile-menu"
             >
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
