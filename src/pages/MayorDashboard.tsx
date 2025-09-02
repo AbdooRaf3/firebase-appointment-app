@@ -6,16 +6,20 @@ import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
 import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const MayorDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
   const { sendNotification } = useNotificationStore();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'today' | 'upcoming' | 'done'>('all');
   const [upcomingNotifications, setUpcomingNotifications] = useState<Appointment[]>([]);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -212,77 +216,197 @@ const MayorDashboard: React.FC = () => {
   const filteredAppointments = getFilteredAppointments();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20"> {/* Added padding for bottom navigation */}
+      {/* شريط التنقل العلوي للهواتف */}
+      <div className="lg:hidden bg-white shadow-md p-4 sticky top-0 z-10">
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => setIsNavOpen(!isNavOpen)}
+            className="p-2 rounded-lg bg-gray-100 text-gray-700"
+          >
+            ☰
+          </button>
+          <h1 className="text-xl font-bold text-gray-900">لوحة رئيس البلدية</h1>
+          <div className="w-10"></div> {/* Spacer for balance */}
+        </div>
+      </div>
+
+      {/* القائمة الجانبية للهواتف */}
+      {isNavOpen && (
+        <div className="lg:hidden fixed inset-0 z-20 bg-black bg-opacity-50" onClick={() => setIsNavOpen(false)}>
+          <div className="absolute right-0 top-0 h-full w-3/4 bg-white shadow-lg" onClick={e => e.stopPropagation()}>
+            <div className="p-4 border-b">
+              <h2 className="text-lg font-semibold">القائمة</h2>
+            </div>
+            <div className="p-4 space-y-4">
+              <button
+                onClick={() => { navigate('/appointments'); setIsNavOpen(false); }}
+                className={`block w-full text-right p-3 rounded-lg ${
+                  location.pathname === '/appointments' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                المواعيد
+              </button>
+              <button
+                onClick={() => { navigate('/dashboard'); setIsNavOpen(false); }}
+                className={`block w-full text-right p-3 rounded-lg ${
+                  location.pathname === '/dashboard' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                لوحة التحكم
+              </button>
+              <button
+                onClick={() => { navigate('/profile'); setIsNavOpen(false); }}
+                className={`block w-full text-right p-3 rounded-lg ${
+                  location.pathname === '/profile' 
+                    ? 'bg-primary-600 text-white' 
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                الملف الشخصي
+              </button>
+              <button
+                onClick={() => { navigate('/logout'); setIsNavOpen(false); }}
+                className="block w-full text-right p-3 rounded-lg bg-red-100 text-red-700 hover:bg-red-200"
+              >
+                تسجيل الخروج
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* شريط التنقل للشاشات الكبيرة (مخفي على الهواتف) */}
+      <nav className="hidden lg:block bg-white rounded-lg shadow border border-gray-200 p-4">
+        <div className="flex flex-wrap items-center justify-between">
+          <div className="flex items-center space-x-4 space-x-reverse">
+            <h2 className="text-xl font-semibold text-gray-900">لوحة رئيس البلدية</h2>
+          </div>
+          
+          <div className="flex items-center space-x-2 space-x-reverse">
+            <button
+              onClick={() => navigate('/appointments')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/appointments' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              المواعيد
+            </button>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/dashboard' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              لوحة التحكم
+            </button>
+            <button
+              onClick={() => navigate('/profile')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === '/profile' 
+                  ? 'bg-primary-600 text-white' 
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              الملف الشخصي
+            </button>
+            <button
+              onClick={() => navigate('/logout')}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+            >
+              تسجيل الخروج
+            </button>
+          </div>
+        </div>
+      </nav>
+
       {/* الترحيب */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">مرحباً، {user?.displayName}</h1>
-        <p className="text-blue-100">لوحة رئيس البلدية - إدارة المواعيد والجدول الزمني</p>
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-bold mb-2">مرحباً، {user?.displayName}</h1>
+            <p className="text-blue-100">لوحة رئيس البلدية - إدارة المواعيد والجدول الزمني</p>
+          </div>
+        </div>
       </div>
 
       {/* إحصائيات سريعة */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 stats-grid">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('all')}>
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
-              <p className="text-2xl font-bold text-gray-900">{appointments.length}</p>
+      <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">إحصائيات سريعة</h3>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('all')}>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">إجمالي المواعيد</p>
+                <p className="text-2xl font-bold text-gray-900">{appointments.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('pending')}>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">في الانتظار</p>
+                <p className="text-2xl font-bold text-gray-900">{getStatusCount('pending')}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('done')}>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">مكتمل</p>
+                <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('today')}>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">اليوم</p>
+                <p className="text-2xl font-bold text-gray-900">{getTodayCount()}</p>
+              </div>
             </div>
           </div>
         </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('pending')}>
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">في الانتظار</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('pending')}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('done')}>
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">مكتمل</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('today')}>
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">اليوم</p>
-              <p className="text-2xl font-bold text-gray-900">{getTodayCount()}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* إحصائيات إضافية */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('upcoming')}>
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">قادمة</p>
-              <p className="text-2xl font-bold text-gray-900">{getUpcomingCount()}</p>
+        {/* إحصائيات إضافية */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('upcoming')}>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">قادمة</p>
+                <p className="text-2xl font-bold text-gray-900">{getUpcomingCount()}</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">ملغية</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('cancelled')}</p>
+          
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">ملغية</p>
+                <p className="text-2xl font-bold text-gray-900">{getCancelledCount()}</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
-          <div className="flex items-center">
-            <div className="mr-4">
-              <p className="text-sm font-medium text-gray-600">مكتملة</p>
-              <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
+          
+          <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
+            <div className="flex items-center">
+              <div className="mr-4">
+                <p className="text-sm font-medium text-gray-600">مكتملة</p>
+                <p className="text-2xl font-bold text-gray-900">{getStatusCount('done')}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -339,7 +463,7 @@ const MayorDashboard: React.FC = () => {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
+            className={`px-3 py-3 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'all'
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -349,7 +473,7 @@ const MayorDashboard: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('pending')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
+            className={`px-3 py-3 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'pending'
                 ? 'bg-yellow-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -359,7 +483,7 @@ const MayorDashboard: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('today')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
+            className={`px-3 py-3 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'today'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -369,7 +493,7 @@ const MayorDashboard: React.FC = () => {
           </button>
           <button
             onClick={() => setFilter('upcoming')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-target ${
+            className={`px-3 py-3 rounded-lg text-sm font-medium transition-colors touch-target ${
               filter === 'upcoming'
                 ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -406,6 +530,33 @@ const MayorDashboard: React.FC = () => {
             />
           ))
         )}
+      </div>
+
+      {/* شريط التنقل السفلي للهواتف */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
+        <div className="flex justify-around p-2">
+          <button 
+            onClick={() => navigate('/appointments')}
+            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/appointments' ? 'text-primary-600' : 'text-gray-600'}`}
+          >
+            <span className="text-2xl">📅</span>
+            <span className="text-xs mt-1">المواعيد</span>
+          </button>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/dashboard' ? 'text-primary-600' : 'text-gray-600'}`}
+          >
+            <span className="text-2xl">📊</span>
+            <span className="text-xs mt-1">الإحصائيات</span>
+          </button>
+          <button 
+            onClick={() => navigate('/profile')}
+            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/profile' ? 'text-primary-600' : 'text-gray-600'}`}
+          >
+            <span className="text-2xl">👤</span>
+            <span className="text-xs mt-1">الملف</span>
+          </button>
+        </div>
       </div>
     </div>
   );
