@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebaseClient';
 import { Appointment, User } from '../types';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } fromstore/authStore';
 import { useToastStore } from '../store/toastStore';
 import { useNotificationStore } from '../store/notificationStore';
 import AppointmentCard from '../components/AppointmentCard';
@@ -30,14 +30,14 @@ const MayorDashboard: React.FC = () => {
         const usersRef = collection(db, 'users');
         const snapshot = await getDocs(usersRef);
         const usersData: User[] = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
+        snapshot.forEach((d) => {
+          const data = d.data();
           usersData.push({
-            uid: doc.id,
+            uid: d.id,
             email: data.email,
             displayName: data.displayName,
             role: data.role,
-            createdAt: data.createdAt.toDate()
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt
           });
         });
         setUsers(usersData);
@@ -58,20 +58,20 @@ const MayorDashboard: React.FC = () => {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const appointmentsData: Appointment[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
+      snapshot.forEach((d) => {
+        const data = d.data();
         appointmentsData.push({
-          id: doc.id,
+          id: d.id,
           title: data.title,
           description: data.description,
-          when: data.when.toDate(),
-          createdAt: data.createdAt.toDate(),
+          when: data.when?.toDate ? data.when.toDate() : data.when,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
           createdByUid: data.createdByUid,
           assignedToUid: data.assignedToUid,
           status: data.status
         });
       });
-      
+
       setAppointments(appointmentsData);
       setLoading(false);
     }, (error) => {
@@ -105,7 +105,7 @@ const MayorDashboard: React.FC = () => {
 
       setUpcomingNotifications(upcoming);
 
-      // إرسال إشعارات للمواعيد القادمة خلال ساعة
+      // إرسال إشعارات للمواعيد القادمة خلال ساعة (عرض تنبيه/توست)
       upcoming.forEach(appointment => {
         const timeDiff = appointment.when.getTime() - now.getTime();
         const hoursUntilAppointment = timeDiff / (1000 * 60 * 60);
@@ -121,9 +121,7 @@ const MayorDashboard: React.FC = () => {
 
     checkUpcomingAppointments();
 
-    // التحقق كل 30 دقيقة
     const interval = setInterval(checkUpcomingAppointments, 30 * 60 * 1000);
-
     return () => clearInterval(interval);
   }, [appointments, addToast]);
 
@@ -131,7 +129,7 @@ const MayorDashboard: React.FC = () => {
     try {
       const appointmentRef = doc(db, 'appointments', appointment.id!);
       await updateDoc(appointmentRef, { status: newStatus });
-      
+
       // إرسال إشعار للسكرتير عن تغيير حالة الموعد
       const secretaryUser = users.find(u => u.uid === appointment.createdByUid);
       if (secretaryUser) {
@@ -143,7 +141,7 @@ const MayorDashboard: React.FC = () => {
           appointmentId: appointment.id
         });
       }
-      
+
       addToast({
         type: 'success',
         message: 'تم تحديث حالة الموعد بنجاح'
@@ -151,20 +149,13 @@ const MayorDashboard: React.FC = () => {
     } catch (error: any) {
       addToast({
         type: 'error',
-        message: 'فشل في تحديث حالة الموعد: ' + error.message
-      });
-    }
-  };
-
-  const getUserById = (uid: string): User | undefined => {
-    return users.find(user => user.uid === uid);
+ const getUserById = (uid: string): User | undefined => {
+    return users.find(u => u.uid === uid);
   };
 
   const getFilteredAppointments = () => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
 
     switch (filter) {
       case 'pending':
@@ -172,8 +163,7 @@ const MayorDashboard: React.FC = () => {
       case 'today':
         return appointments.filter(app => {
           const appDate = new Date(app.when.getFullYear(), app.when.getMonth(), app.when.getDate());
-          return appDate.getTime() === today.getTime();
-        });
+          return appDate.getTime() ===        });
       case 'upcoming':
         return appointments.filter(app => app.when > now && app.status === 'pending');
       case 'done':
@@ -215,19 +205,24 @@ const MayorDashboard: React.FC = () => {
 
   const filteredAppointments = getFilteredAppointments();
 
+  // نضيف padding bottom يحسب مساحة الشريط + safe area حتى لا يغطي الشريط محتوى الصفحة.
   return (
-    <div className="space-y-6 pb-20"> {/* Added padding for bottom navigation */}
+    <div
+      className="space-y-6"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }} // 64px = ارتفاع الشريط (h-16)
+    >
       {/* شريط التنقل العلوي للهواتف */}
       <div className="lg:hidden bg-white shadow-md p-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <button 
+          <button
             onClick={() => setIsNavOpen(!isNavOpen)}
             className="p-2 rounded-lg bg-gray-100 text-gray-700"
+            aria-label="فتح القائمة"
           >
             ☰
           </button>
           <h1 className="text-xl font-bold text-gray-900">لوحة رئيس البلدية</h1>
-          <div className="w-10"></div> {/* Spacer for balance */}
+          <div className="w-10" />
         </div>
       </div>
 
@@ -242,8 +237,8 @@ const MayorDashboard: React.FC = () => {
               <button
                 onClick={() => { navigate('/appointments'); setIsNavOpen(false); }}
                 className={`block w-full text-right p-3 rounded-lg ${
-                  location.pathname === '/appointments' 
-                    ? 'bg-primary-600 text-white' 
+                  location.pathname === '/appointments'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -252,8 +247,8 @@ const MayorDashboard: React.FC = () => {
               <button
                 onClick={() => { navigate('/dashboard'); setIsNavOpen(false); }}
                 className={`block w-full text-right p-3 rounded-lg ${
-                  location.pathname === '/dashboard' 
-                    ? 'bg-primary-600 text-white' 
+                  location.pathname === '/dashboard'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -262,8 +257,8 @@ const MayorDashboard: React.FC = () => {
               <button
                 onClick={() => { navigate('/profile'); setIsNavOpen(false); }}
                 className={`block w-full text-right p-3 rounded-lg ${
-                  location.pathname === '/profile' 
-                    ? 'bg-primary-600 text-white' 
+                  location.pathname === '/profile'
+                    ? 'bg-primary-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -286,13 +281,13 @@ const MayorDashboard: React.FC = () => {
           <div className="flex items-center space-x-4 space-x-reverse">
             <h2 className="text-xl font-semibold text-gray-900">لوحة رئيس البلدية</h2>
           </div>
-          
+
           <div className="flex items-center space-x-2 space-x-reverse">
             <button
               onClick={() => navigate('/appointments')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                location.pathname === '/appointments' 
-                  ? 'bg-primary-600 text-white' 
+                location.pathname === '/appointments'
+                  ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -301,8 +296,8 @@ const MayorDashboard: React.FC = () => {
             <button
               onClick={() => navigate('/dashboard')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                location.pathname === '/dashboard' 
-                  ? 'bg-primary-600 text-white' 
+                location.pathname === '/dashboard'
+                  ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -311,8 +306,8 @@ const MayorDashboard: React.FC = () => {
             <button
               onClick={() => navigate('/profile')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                location.pathname === '/profile' 
-                  ? 'bg-primary-600 text-white' 
+                location.pathname === '/profile'
+                  ? 'bg-primary-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -352,7 +347,7 @@ const MayorDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('pending')}>
             <div className="flex items-center">
               <div className="mr-4">
@@ -361,7 +356,7 @@ const MayorDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('done')}>
             <div className="flex items-center">
               <div className="mr-4">
@@ -370,7 +365,7 @@ const MayorDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => setFilter('today')}>
             <div className="flex items-center">
               <div className="mr-4">
@@ -391,7 +386,7 @@ const MayorDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
             <div className="flex items-center">
               <div className="mr-4">
@@ -400,7 +395,7 @@ const MayorDashboard: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white rounded-lg shadow p-4 border border-gray-200 cursor-pointer hover:shadow-md transition-shadow">
             <div className="flex items-center">
               <div className="mr-4">
@@ -430,7 +425,7 @@ const MayorDashboard: React.FC = () => {
             {upcomingNotifications.slice(0, 3).map((appointment) => {
               const timeDiff = appointment.when.getTime() - new Date().getTime();
               const hoursUntil = Math.ceil(timeDiff / (1000 * 60 * 60));
-              
+
               return (
                 <div key={appointment.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-yellow-200">
                   <div>
@@ -510,7 +505,7 @@ const MayorDashboard: React.FC = () => {
           <div className="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
             <h3 className="mt-2 text-sm font-medium text-gray-900">لا توجد مواعيد</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {filter === 'all' 
+              {filter === 'all'
                 ? 'لم يتم تعيين أي مواعيد لك بعد'
                 : `لا توجد مواعيد ${filter === 'pending' ? 'في الانتظار' : filter === 'today' ? 'لليوم' : 'قادمة'}`
               }
@@ -532,26 +527,42 @@ const MayorDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* شريط التنقل السفلي للهواتف */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
-        <div className="flex justify-around p-2">
-          <button 
+      {/* شريط التنقل السفلي للهواتف - ثابت دائما في أسفل الشاشة مع safe-area */}
+      <div
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        role="navigation"
+        aria-label="شريط التنقل السفلي"
+      >
+        <div className="flex justify-around items-center p-2 h-16">
+          <button
             onClick={() => navigate('/appointments')}
-            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/appointments' ? 'text-primary-600' : 'text-gray-600'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg w-full ${
+              location.pathname === '/appointments' ? 'text-primary-600' : 'text-gray-600'
+            }`}
+            aria-label="المواعيد"
           >
             <span className="text-2xl">📅</span>
             <span className="text-xs mt-1">المواعيد</span>
           </button>
-          <button 
+
+          <button
             onClick={() => navigate('/dashboard')}
-            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/dashboard' ? 'text-primary-600' : 'text-gray-600'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg w-full ${
+              location.pathname === '/dashboard' ? 'text-primary-600' : 'text-gray-600'
+            }`}
+            aria-label="الإحصائيات"
           >
             <span className="text-2xl">📊</span>
-            <span className="text-xs mt-1">الإحصائيات</span>
+            <span className="text-xs mt-1">الإحصاءات</span>
           </button>
-          <button 
+
+          <button
             onClick={() => navigate('/profile')}
-            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/profile' ? 'text-primary-600' : 'text-gray-600'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg w-full ${
+              location.pathname === '/profile' ? 'text-primary-600' : 'text-gray-600'
+            }`}
+            aria-label="الملف الشخصي"
           >
             <span className="text-2xl">👤</span>
             <span className="text-xs mt-1">الملف</span>
