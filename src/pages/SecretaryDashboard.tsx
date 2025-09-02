@@ -9,6 +9,7 @@ import AppointmentCard from '../components/AppointmentCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
+
 const SecretaryDashboard: React.FC = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
