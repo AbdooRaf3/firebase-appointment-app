@@ -264,7 +264,7 @@ const SecretaryDashboard: React.FC = () => {
     // الحصول على يوم الأسبوع لأول يوم (0 = الأحد)
     const startDay = firstDay.getDay();
     
-    const calendar = [];
+    const calendar: Array<any> = [];
     
     // إضافة الأيام الفارغة في بداية الشهر
     for (let i = 0; i < startDay; i++) {
@@ -305,7 +305,7 @@ const SecretaryDashboard: React.FC = () => {
           ))}
         </div>
         <div className="grid grid-cols-7 gap-1">
-          {calendar.map((day, index) => (
+          {calendar.map((day: any, index: number) => (
             <div
               key={index}
               className={`min-h-[80px] p-1 border border-gray-100 ${
@@ -320,7 +320,7 @@ const SecretaryDashboard: React.FC = () => {
                     {day.day}
                   </div>
                   <div className="space-y-1">
-                    {day.appointments.slice(0, 2).map((appointment, appIndex) => (
+                    {day.appointments.slice(0, 2).map((appointment: Appointment, appIndex: number) => (
                       <div
                         key={appIndex}
                         className={`text-xs p-1 rounded truncate ${
@@ -435,19 +435,24 @@ const SecretaryDashboard: React.FC = () => {
     );
   }
 
+  // ملاحظة: نضيف padding bottom يحسب مساحة الشريط + safe area حتى لا يغطي الشريط محتوى الصفحة.
   return (
-    <div className="space-y-6 pb-20"> {/* Added padding for bottom navigation */}
+    <div
+      className="space-y-6"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }} // 64px = ارتفاع الشريط (h-16)
+    >
       {/* شريط التنقل العلوي للهواتف */}
       <div className="lg:hidden bg-white shadow-md p-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <button 
             onClick={() => setIsNavOpen(!isNavOpen)}
             className="p-2 rounded-lg bg-gray-100 text-gray-700"
+            aria-label="فتح القائمة"
           >
             ☰
           </button>
           <h1 className="text-xl font-bold text-gray-900">لوحة السكرتير</h1>
-          <div className="w-10"></div> {/* Spacer for balance */}
+          <div className="w-10" />
         </div>
       </div>
 
@@ -912,33 +917,51 @@ const SecretaryDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* شريط التنقل السفلي للهواتف */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
-        <div className="flex justify-around p-2">
-          <button 
+      {/* شريط التنقل السفلي للهواتف - ثابت دائما في أسفل الشاشة مع safe-area */}
+      <div
+        className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        role="navigation"
+        aria-label="شريط التنقل السفلي"
+      >
+        <div className="flex justify-around items-center p-2 h-16">
+          <button
             onClick={() => navigate('/appointments')}
-            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/appointments' ? 'text-primary-600' : 'text-gray-600'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg w-full ${
+              location.pathname === '/appointments' ? 'text-primary-600' : 'text-gray-600'
+            }`}
+            aria-label="المواعيد"
           >
             <span className="text-2xl">📅</span>
             <span className="text-xs mt-1">المواعيد</span>
           </button>
-          <button 
+
+          <button
             onClick={() => navigate('/appointments/new')}
-            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/appointments/new' ? 'text-primary-600' : 'text-gray-600'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg w-full ${
+              location.pathname === '/appointments/new' ? 'text-primary-600' : 'text-gray-600'
+            }`}
+            aria-label="جديد"
           >
             <span className="text-2xl">➕</span>
             <span className="text-xs mt-1">جديد</span>
           </button>
-          <button 
+
+          <button
             onClick={() => setViewMode(viewMode === 'list' ? 'calendar' : 'list')}
-            className="flex flex-col items-center p-2 rounded-lg text-gray-600"
+            className="flex flex-col items-center justify-center p-2 rounded-lg w-full text-gray-600"
+            aria-label={viewMode === 'list' ? 'التقويم' : 'القائمة'}
           >
             <span className="text-2xl">{viewMode === 'list' ? '📆' : '📋'}</span>
             <span className="text-xs mt-1">{viewMode === 'list' ? 'التقويم' : 'القائمة'}</span>
           </button>
-          <button 
+
+          <button
             onClick={() => navigate('/profile')}
-            className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/profile' ? 'text-primary-600' : 'text-gray-600'}`}
+            className={`flex flex-col items-center justify-center p-2 rounded-lg w-full ${
+              location.pathname === '/profile' ? 'text-primary-600' : 'text-gray-600'
+            }`}
+            aria-label="الملف الشخصي"
           >
             <span className="text-2xl">👤</span>
             <span className="text-xs mt-1">الملف</span>
