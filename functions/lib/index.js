@@ -8,75 +8,11 @@ admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging();
 // إرسال الإشعارات المجدولة
-exports.sendScheduledNotifications = functions.pubsub
-    .schedule('every 1 minutes')
-    .onRun(async (context) => {
-    try {
-        const now = admin.firestore.Timestamp.now();
-        // البحث عن الإشعارات المجدولة للإرسال
-        const scheduledNotificationsRef = db.collection('scheduledNotifications');
-        const snapshot = await scheduledNotificationsRef
-            .where('scheduledFor', '<=', now)
-            .where('isSent', '==', false)
-            .get();
-        const batch = db.batch();
-        const notificationsToSend = [];
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            // إضافة الإشعار إلى مجموعة الإشعارات
-            const notificationRef = db.collection('notifications').doc();
-            batch.set(notificationRef, {
-                userId: data.userId,
-                title: data.title,
-                message: data.message,
-                type: data.type,
-                appointmentId: data.appointmentId,
-                isRead: false,
-                createdAt: now
-            });
-            // تحديث حالة الإشعار المجدول
-            batch.update(doc.ref, { isSent: true });
-            notificationsToSend.push({
-                userId: data.userId,
-                title: data.title,
-                message: data.message
-            });
-        });
-        // تنفيذ العمليات
-        await batch.commit();
-        // إرسال إشعارات Push (إذا كان لديك FCM)
-        for (const notification of notificationsToSend) {
-            try {
-                // البحث عن توكنات المستخدم
-                const userTokensRef = db.collection('deviceTokens');
-                const userTokensSnapshot = await userTokensRef
-                    .where('uid', '==', notification.userId)
-                    .get();
-                if (!userTokensSnapshot.empty) {
-                    const tokens = userTokensSnapshot.docs.map(doc => doc.data().token);
-                    // إرسال إشعار FCM
-                    const message = {
-                        notification: {
-                            title: notification.title,
-                            body: notification.message
-                        },
-                        tokens: tokens
-                    };
-                    const response = await admin.messaging().sendMulticast(message);
-                    console.log('تم إرسال الإشعارات:', response.successCount, 'من', response.responses.length);
-                }
-            }
-            catch (error) {
-                console.error('فشل في إرسال إشعار FCM:', error);
-            }
-        }
-        console.log(`تم معالجة ${snapshot.size} إشعار مجدول`);
-        return null;
-    }
-    catch (error) {
-        console.error('فشل في معالجة الإشعارات المجدولة:', error);
-        return null;
-    }
+// ملاحظة: تم تعطيل وظيفة الجدولة للحفاظ على الخطة المجانية (Spark)
+// كانت الوظيفة تستخدم Cloud Scheduler الذي يتطلب خطة Blaze عند الاستدعاء المتكرر.
+// إذا لزم الأمر لاحقاً، يمكن استبدالها بـ onWrite trigger أو تنفيذ يدوي عبر HTTPS Callable.
+exports.sendScheduledNotifications = functions.https.onRequest((_req, res) => {
+    res.status(200).send('Scheduled notifications disabled on free plan.');
 });
 // إرسال إشعار عند إنشاء موعد جديد
 exports.onAppointmentCreated = functions.firestore
@@ -96,7 +32,7 @@ exports.onAppointmentCreated = functions.firestore
         await db.collection('notifications').add({
             userId: appointmentData.assignedToUid,
             title: 'موعد جديد',
-            message: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA')}`,
+            message: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA-u-ca-gregory')}`,
             type: 'appointment_created',
             appointmentId: appointmentId,
             isRead: false,
@@ -114,7 +50,7 @@ exports.onAppointmentCreated = functions.firestore
                 const fcmMessage = {
                     notification: {
                         title: 'موعد جديد',
-                        body: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA')}`
+                        body: `تم إنشاء موعد جديد: "${appointmentData.title}" في ${appointmentData.when.toDate().toLocaleString('ar-SA-u-ca-gregory')}`
                     },
                     data: {
                         appointmentId: appointmentId,
@@ -136,7 +72,7 @@ exports.onAppointmentCreated = functions.firestore
             await db.collection('scheduledNotifications').add({
                 userId: appointmentData.assignedToUid,
                 title: 'تذكير بالموعد',
-                message: `موعدك القادم: "${appointmentData.title}" في الساعة ${appointmentTime.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}`,
+                message: `موعدك القادم: "${appointmentData.title}" في الساعة ${appointmentTime.toLocaleTimeString('ar-SA-u-ca-gregory', { hour: '2-digit', minute: '2-digit' })}`,
                 type: 'appointment_reminder',
                 appointmentId: appointmentId,
                 isRead: false,
