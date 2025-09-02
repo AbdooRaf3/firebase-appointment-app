@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useToastStore } from '../store/toastStore';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import './Toast.css';
 
 const Toast: React.FC = () => {
   const { toasts, removeToast } = useToastStore();
@@ -12,6 +13,18 @@ const Toast: React.FC = () => {
     } else {
       setIsVisible(false);
     }
+  }, [toasts]);
+
+  // تحديث مدة الرسوم المتحركة لشريط التقدم
+  useEffect(() => {
+    toasts.forEach((toast) => {
+      if (toast.duration && toast.duration !== 5000) {
+        const progressBar = document.querySelector(`[data-toast-id="${toast.id}"] .toast-progress-bar`);
+        if (progressBar) {
+          (progressBar as HTMLElement).style.animationDuration = `${toast.duration}ms`;
+        }
+      }
+    });
   }, [toasts]);
 
   const getToastIcon = (type: string) => {
@@ -51,6 +64,7 @@ const Toast: React.FC = () => {
       {toasts.map((toast) => (
         <div
           key={toast.id}
+          data-toast-id={toast.id}
           className={`${getToastStyles(toast.type)} animate-slide-up`}
           role="alert"
           aria-live="assertive"
@@ -82,22 +96,14 @@ const Toast: React.FC = () => {
           {/* شريط التقدم */}
           <div className="mt-3 w-full bg-current bg-opacity-20 rounded-full h-1">
             <div 
-              className="bg-current h-1 rounded-full transition-all duration-300 ease-linear"
-              style={{ 
-                width: '100%',
-                animation: `shrink ${toast.duration || 5000}ms linear forwards`
-              }}
+              className={`bg-current h-1 rounded-full transition-all duration-300 ease-linear toast-progress-bar ${
+                toast.duration && toast.duration !== 5000 ? 'custom-duration' : ''
+              }`}
+              data-duration={toast.duration && toast.duration !== 5000 ? toast.duration : undefined}
             />
           </div>
         </div>
       ))}
-      
-      <style>{`
-        @keyframes shrink {
-          from { width: 100%; }
-          to { width: 0%; }
-        }
-      `}</style>
     </div>
   );
 };

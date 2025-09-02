@@ -430,3 +430,32 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ===== أنماط Loading Dots ===== */
+
+.loading-dot-1 {
+  animation-delay: 0ms;
+}
+
+.loading-dot-2 {
+  animation-delay: 150ms;
+}
+
+.loading-dot-3 {
+  animation-delay: 300ms;
+}
+
+/* ===== أنماط Toast Progress Bar ===== */
+
+.toast-progress-bar {
+  animation: toast-progress 5000ms linear forwards;
+}
+
+@keyframes toast-progress {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}

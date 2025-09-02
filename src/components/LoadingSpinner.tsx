@@ -46,9 +46,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
             {text}
           </p>
                   <div className="flex items-center justify-center space-x-1 space-x-reverse">
-          <div className="w-1 h-1 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-          <div className="w-1 h-1 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-          <div className="w-1 h-1 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          <div className="w-1 h-1 bg-primary-500 rounded-full animate-bounce loading-dot-1"></div>
+          <div className="w-1 h-1 bg-primary-500 rounded-full animate-bounce loading-dot-2"></div>
+          <div className="w-1 h-1 bg-primary-500 rounded-full animate-bounce loading-dot-3"></div>
         </div>
         </div>
       )}
