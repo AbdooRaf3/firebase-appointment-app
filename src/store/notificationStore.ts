@@ -284,8 +284,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
          if (payload.notification) {
            new Notification(payload.notification.title || 'إشعار جديد', {
              body: payload.notification.body,
-             icon: '/icons/icon-192x192.png',
-             badge: '/icons/icon-192x192.png',
+             icon: '/icon-192x192.png',
+             badge: '/icon-192x192.png',
              tag: 'appointment-notification',
              requireInteraction: true
            });
@@ -323,8 +323,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
              // إرسال إشعار تجريبي
        await registration.showNotification('اختبار الإشعارات', {
          body: 'هذا إشعار تجريبي للتأكد من عمل الإشعارات',
-         icon: '/icons/icon-192x192.png',
-         badge: '/icons/icon-192x192.png',
+         icon: '/icon-192x192.png',
+         badge: '/icon-192x192.png',
          tag: 'test-notification',
          requireInteraction: true
        });
@@ -338,8 +338,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       try {
         new Notification('اختبار الإشعارات', {
           body: 'هذا إشعار تجريبي للتأكد من عمل الإشعارات',
-          icon: '/icons/icon-192x192.png',
-          badge: '/icons/icon-192x192.png',
+          icon: '/icon-192x192.png',
+          badge: '/icon-192x192.png',
           tag: 'test-notification',
           requireInteraction: true
         });
@@ -374,7 +374,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         type: 'SHOW_NOTIFICATION',
         title: title,
         body: body,
-        icon: '/icons/icon-192x192.png',
+        icon: '/icon-192x192.png',
         tag: 'phone-notification'
       });
 
