@@ -72,5 +72,13 @@ service cloud.firestore {
       allow update: if false; // يتم تحديثها من Cloud Functions فقط
       allow delete: if false;
     }
+
+    // immediateNotifications: السماح للمستخدم بقراءة إشعاراته الفورية وتحديثها
+    match /immediateNotifications/{docId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn(); // السماح بإنشاء الإشعارات الفورية
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
   }
 }

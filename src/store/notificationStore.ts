@@ -43,6 +43,12 @@ interface NotificationStore {
   // إلغاء الاشتراك من الإشعارات
   unsubscribeFromNotifications: () => void;
   
+  // الاستماع للإشعارات الفورية
+  listenToImmediateNotifications: (userId: string) => void;
+  
+  // حفظ الإشعار للخلفية باستخدام Background Sync
+  saveNotificationForBackground: (title: string, message: string, data: any) => Promise<void>;
+  
   // إعداد إشعارات المتصفح
   setupPushNotifications: () => Promise<void>;
   
@@ -205,6 +211,81 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     }
   },
 
+  // الاستماع للإشعارات الفورية
+  listenToImmediateNotifications: (userId: string) => {
+    try {
+      const immediateNotificationsRef = collection(db, 'immediateNotifications');
+      const q = query(
+        immediateNotificationsRef,
+        where('userId', '==', userId),
+        where('read', '==', false)
+      );
+      
+      return onSnapshot(q, async (snapshot) => {
+        snapshot.docChanges().forEach(async (change) => {
+          if (change.type === 'added') {
+            const data = change.doc.data();
+            console.log('إشعار فوري جديد:', data);
+            
+            // محاولة إرسال إشعار فوري
+            try {
+              await get().sendPhoneNotification(data.title, data.message);
+            } catch (error) {
+              console.log('فشل في إرسال إشعار فوري، سيتم حفظه للخلفية:', error);
+              
+              // حفظ الإشعار للخلفية باستخدام Background Sync
+              await get().saveNotificationForBackground(data.title, data.message, data);
+            }
+            
+            // حفظ الإشعار في قاعدة البيانات
+            await get().sendNotification({
+              userId: data.userId,
+              title: data.title,
+              message: data.message,
+              type: data.type,
+              appointmentId: data.appointmentId
+            });
+            
+            // تحديث حالة الإشعار كمقروء
+            await updateDoc(change.doc.ref, { read: true });
+          }
+        });
+      });
+    } catch (error: any) {
+      console.error('فشل في الاستماع للإشعارات الفورية:', error);
+    }
+  },
+
+  // حفظ الإشعار للخلفية باستخدام Background Sync
+  saveNotificationForBackground: async (title: string, message: string, data: any) => {
+    try {
+      // التحقق من دعم Background Sync
+      if ('serviceWorker' in navigator && 'sync' in (window.ServiceWorkerRegistration as any).prototype) {
+        const registration = await navigator.serviceWorker.ready;
+        
+        // إرسال الإشعار إلى Service Worker لحفظه
+        if (registration.active) {
+          registration.active.postMessage({
+            type: 'SAVE_PENDING_NOTIFICATION',
+            notification: {
+              title: title,
+              message: message,
+              data: data
+            }
+          });
+          
+          // تسجيل Background Sync
+          await (registration as any).sync.register('send-notification');
+          console.log('تم حفظ الإشعار للخلفية وتسجيل Background Sync');
+        }
+      } else {
+        console.log('Background Sync غير مدعوم في هذا المتصفح');
+      }
+    } catch (error: any) {
+      console.error('فشل في حفظ الإشعار للخلفية:', error);
+    }
+  },
+
   checkNotificationPermission: async () => {
     try {
       // فحص إذن الإشعارات
@@ -325,6 +406,23 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
           // حفظ التوكن في localStorage للاستخدام لاحقاً
           localStorage.setItem('fcm_token', token);
           console.log('تم حفظ توكن FCM في localStorage');
+
+          // حفظ التوكن في Firestore للاستخدام من Cloud Functions
+          try {
+            const auth = getAuth();
+            if (auth.currentUser) {
+              await addDoc(collection(db, 'deviceTokens'), {
+                uid: auth.currentUser.uid,
+                token: token,
+                createdAt: serverTimestamp(),
+                platform: 'web',
+                userAgent: navigator.userAgent
+              });
+              console.log('تم حفظ توكن FCM في Firestore');
+            }
+          } catch (tokenSaveError) {
+            console.error('فشل في حفظ توكن FCM في Firestore:', tokenSaveError);
+          }
         } else {
           console.warn('لم يتم الحصول على توكن Firebase Messaging - التوكن فارغ');
         }

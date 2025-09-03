@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testNotification = exports.onAppointmentStatusUpdated = exports.onAppointmentCreated = exports.sendScheduledNotifications = void 0;
+exports.testNotification = exports.onImmediateNotificationCreated = exports.onAppointmentStatusUpdated = exports.onAppointmentCreated = exports.sendScheduledNotifications = void 0;
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 // تهيئة Firebase Admin
@@ -167,6 +167,56 @@ function getStatusText(status) {
             return status;
     }
 }
+/**
+ * Cloud Function لإرسال الإشعارات الفورية
+ */
+exports.onImmediateNotificationCreated = functions.firestore
+    .document('immediateNotifications/{notificationId}')
+    .onCreate(async (snap, context) => {
+    try {
+        const notificationData = snap.data();
+        const notificationId = context.params.notificationId;
+        console.log('إشعار فوري جديد:', notificationData);
+        // جلب توكنات المستخدم
+        const userTokensRef = db.collection('deviceTokens');
+        const userTokensSnapshot = await userTokensRef
+            .where('uid', '==', notificationData.userId)
+            .get();
+        if (!userTokensSnapshot.empty) {
+            const tokens = userTokensSnapshot.docs.map(doc => doc.data().token);
+            // إرسال إشعار FCM
+            const fcmMessage = {
+                notification: {
+                    title: notificationData.title,
+                    body: notificationData.message
+                },
+                data: {
+                    type: notificationData.type,
+                    appointmentId: notificationData.appointmentId || '',
+                    notificationId: notificationId
+                },
+                tokens: tokens,
+                // إعدادات خاصة للآيفون
+                apns: {
+                    payload: {
+                        aps: {
+                            sound: 'default',
+                            badge: 1,
+                            'content-available': 1
+                        }
+                    }
+                }
+            };
+            const response = await messaging.sendMulticast(fcmMessage);
+            console.log('تم إرسال إشعار FCM فوري:', response.successCount, 'من', response.responses.length);
+        }
+        return null;
+    }
+    catch (error) {
+        console.error('فشل في إرسال إشعار FCM فوري:', error);
+        return null;
+    }
+});
 /**
  * Cloud Function لاختبار الإشعارات (اختياري)
  */

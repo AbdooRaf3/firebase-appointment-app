@@ -373,7 +373,7 @@ const AdminDashboard: React.FC = () => {
 
 const App: React.FC = () => {
   const { initializeAuth, user } = useAuthStore();
-  const { setupPushNotifications } = useNotificationStore();
+  const { setupPushNotifications, listenToImmediateNotifications } = useNotificationStore();
 
   useEffect(() => {
     // تهيئة المصادقة
@@ -397,11 +397,14 @@ const App: React.FC = () => {
         setupPushNotifications().catch(error => {
           console.error('فشل في تهيئة الإشعارات:', error);
         });
+        
+        // الاستماع للإشعارات الفورية
+        listenToImmediateNotifications(user.uid);
       }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [user, setupPushNotifications]);
+  }, [user, setupPushNotifications, listenToImmediateNotifications]);
 
   return (
     <IOSOptimizations>

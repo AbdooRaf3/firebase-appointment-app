@@ -107,11 +107,22 @@ const NewAppointment: React.FC = () => {
           appointmentId: appointmentRef.id
         });
 
-        // إرسال إشعار للهاتف (مجاني)
-        await sendPhoneNotification(
-          'موعد جديد',
-          `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA-u-ca-gregory')}`
-        );
+        // إرسال إشعار للهاتف (مجاني) - سيتم إرساله من جهاز الرئيس
+        // await sendPhoneNotification(
+        //   'موعد جديد',
+        //   `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA-u-ca-gregory')}`
+        // );
+        
+        // إرسال إشعار فوري للهاتف عبر Firestore
+        await addDoc(collection(db, 'immediateNotifications'), {
+          userId: formData.assignedToUid,
+          title: 'موعد جديد',
+          message: `تم إنشاء موعد جديد: "${formData.title}" في ${selectedDate.toLocaleString('ar-SA-u-ca-gregory')}`,
+          type: 'appointment_created',
+          appointmentId: appointmentRef.id,
+          createdAt: serverTimestamp(),
+          read: false
+        });
 
         // جدولة تنبيه قبل الموعد بساعة
         const reminderTime = new Date(selectedDate.getTime() - 60 * 60 * 1000); // قبل ساعة
