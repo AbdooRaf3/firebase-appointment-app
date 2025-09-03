@@ -258,7 +258,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         return;
       }
 
-      // الحصول على توكن الإشعارات
+      // الحصول على توكن الإشعارات - محسن للآيفون
       const messaging = getMessaging();
       const token = await getToken(messaging, {
         vapidKey: import.meta.env.VITE_FCM_VAPID_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
@@ -375,16 +375,35 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       // الحصول على تسجيل Service Worker
       const registration = await navigator.serviceWorker.ready;
       
-      // إرسال رسالة إلى Service Worker لعرض الإشعار
+      // إرسال رسالة إلى Service Worker لعرض الإشعار - محسن للآيفون
       registration.active?.postMessage({
         type: 'SHOW_NOTIFICATION',
         title: title,
         body: body,
-        icon: '/icon-192x192.png',
-        tag: 'phone-notification'
+        icon: '/icons/icon-192x192.png',
+        badge: '/icons/icon-192x192.png',
+        tag: 'phone-notification',
+        // إعدادات خاصة للآيفون
+        requireInteraction: true,
+        dir: 'rtl',
+        lang: 'ar-SA',
+        timestamp: Date.now(),
+        vibrate: [200, 100, 200, 100, 200],
+        actions: [
+          {
+            action: 'view',
+            title: 'عرض',
+            icon: '/icons/icon-192x192.png'
+          },
+          {
+            action: 'dismiss',
+            title: 'تجاهل',
+            icon: '/icons/icon-192x192.png'
+          }
+        ]
       });
 
-      console.log('تم إرسال إشعار للهاتف');
+      console.log('تم إرسال إشعار للهاتف - محسن للآيفون');
     } catch (error: any) {
       console.error('فشل في إرسال إشعار للهاتف:', error);
     }
