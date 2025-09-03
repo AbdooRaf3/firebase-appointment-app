@@ -288,10 +288,11 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
       // التحقق من أن المستخدم لديه token صالح
       try {
-        const idToken = await auth.currentUser.getIdToken();
+        const idToken = await auth.currentUser.getIdToken(true); // إجبار تحديث التوكن
         console.log('تم التحقق من token المستخدم بنجاح');
       } catch (authError) {
         console.log('فشل في التحقق من token المستخدم:', authError);
+        console.log('سيتم استخدام الإشعارات المحلية بدلاً من Firebase Messaging');
         return;
       }
       
@@ -304,10 +305,19 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
           console.log('سيتم استخدام المفتاح الافتراضي للاختبار');
         }
 
-        const token = await getToken(messaging, {
-          vapidKey: vapidKey || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
-          serviceWorkerRegistration: registration
-        });
+        // محاولة الحصول على التوكن بدون VAPID Key أولاً
+        let token;
+        try {
+          token = await getToken(messaging, {
+            serviceWorkerRegistration: registration
+          });
+        } catch (error) {
+          console.log('فشل الحصول على التوكن بدون VAPID Key، جاري المحاولة مع VAPID Key...');
+          token = await getToken(messaging, {
+            vapidKey: vapidKey || 'BL99ulW-nqClj9yKYRrGy1BGQLq0BilmZKM8JfuDOUAfuaNCQ_d9tzDK3ubzxbcxKqQ4V09a-7t_EYBqZlj8Kqw',
+            serviceWorkerRegistration: registration
+          });
+        }
 
         if (token) {
           console.log('تم الحصول على توكن Firebase Messaging بنجاح:', token.substring(0, 20) + '...');
@@ -334,6 +344,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
           console.error('1. اذهب إلى Firebase Console > Project Settings > Cloud Messaging');
           console.error('2. تأكد من وجود Web Push certificates');
           console.error('3. إذا لم يكن موجوداً، انقر على "Generate key pair"');
+          console.error('4. تأكد من تفعيل Firebase Cloud Messaging API في Google Cloud Console');
+          console.error('5. تحقق من أن المشروع يستخدم Firebase SDK v9+');
         } else {
           console.error('خطأ غير معروف:', tokenError.message);
         }
