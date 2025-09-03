@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Icons</title>
+</head>
+<body>
+    <canvas id="canvas192" width="192" height="192" style="display:none;"></canvas>
+    <canvas id="canvas512" width="512" height="512" style="display:none;"></canvas>
+    <canvas id="canvas96" width="96" height="96" style="display:none;"></canvas>
+    
+    <script>
+        function createIcon(canvasId, size, filename) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // خلفية زرقاء
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(0, 0, size, size);
+            
+            // دائرة بيضاء في المنتصف
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/3, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // نص "م" في المنتصف
+            ctx.fillStyle = '#3b82f6';
+            ctx.font = `bold ${size/3}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('م', size/2, size/2);
+            
+            // تحويل إلى blob وتحميل
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }
+        
+        // إنشاء الأيقونات
+        createIcon('canvas192', 192, 'icon-192x192.png');
+        createIcon('canvas512', 512, 'icon-512x512.png');
+        createIcon('canvas96', 96, 'icon-96x96.png');
+    </script>
+</body>
+</html>
