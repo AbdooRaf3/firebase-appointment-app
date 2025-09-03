@@ -3,6 +3,7 @@ import { collection, addDoc, onSnapshot, query, where, orderBy, serverTimestamp,
 import { db } from '../firebase/firebaseClient';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getAuth } from 'firebase/auth';
+import { getMessagingInstance } from '../firebase/firebaseClient';
 
 export interface Notification {
   id?: string;
@@ -262,12 +263,41 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
       console.log('محاولة الحصول على توكن Firebase Messaging...');
       
-      // الحصول على توكن الإشعارات - محسن للآيفون
-      const messaging = getMessaging();
+      // التحقق من أن messaging متاح مع انتظار التهيئة
+      let messaging = getMessagingInstance();
+      if (!messaging) {
+        console.log('Firebase Messaging غير متاح - محاولة انتظار التهيئة...');
+        // انتظار قصير لإعطاء وقت للتهيئة
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        messaging = getMessagingInstance();
+        if (!messaging) {
+          console.log('Firebase Messaging لا يزال غير متاح');
+          return;
+        }
+      }
+
+      // التحقق من حالة المصادقة
+      const auth = getAuth();
+      if (!auth.currentUser) {
+        console.log('المستخدم غير مسجل الدخول - سيتم تأجيل إعداد الإشعارات');
+        return;
+      }
+
+      // التحقق من أن المستخدم لديه token صالح
+      try {
+        const idToken = await auth.currentUser.getIdToken();
+        console.log('تم التحقق من token المستخدم بنجاح');
+      } catch (authError) {
+        console.log('فشل في التحقق من token المستخدم:', authError);
+        return;
+      }
       
       try {
+        const vapidKey = import.meta.env.VITE_FCM_VAPID_KEY;
+        console.log('VAPID Key:', vapidKey ? 'موجود' : 'غير موجود');
+        
         const token = await getToken(messaging, {
-          vapidKey: import.meta.env.VITE_FCM_VAPID_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
+          vapidKey: vapidKey || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
           serviceWorkerRegistration: registration
         });
         
@@ -282,8 +312,9 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       }
 
       // الاستماع للإشعارات الواردة (عندما يكون التطبيق مفتوح)
-      try {
-        onMessage(messaging, async (payload) => {
+      if (messaging) {
+        try {
+          onMessage(messaging, async (payload) => {
           console.log('تم استلام إشعار (التطبيق مفتوح):', payload);
           
           // عرض الإشعار في المتصفح عبر SW ليظهر على شاشة القفل
@@ -298,10 +329,11 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
               requireInteraction: true
             });
           }
-        });
-        console.log('تم إعداد الاستماع للإشعارات الواردة');
-      } catch (onMessageError: any) {
-        console.warn('فشل في إعداد الاستماع للإشعارات الواردة:', onMessageError.message);
+          });
+          console.log('تم إعداد الاستماع للإشعارات الواردة');
+        } catch (onMessageError: any) {
+          console.warn('فشل في إعداد الاستماع للإشعارات الواردة:', onMessageError.message);
+        }
       }
 
       // تحديث حالة الإشعارات

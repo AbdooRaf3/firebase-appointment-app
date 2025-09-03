@@ -42,6 +42,11 @@ const initMessaging = async () => {
 // تهيئة Messaging
 initMessaging();
 
+// تصدير دالة للحصول على messaging
+export const getMessagingInstance = () => {
+  return messaging;
+};
+
 // ربط Emulators في بيئة التطوير فقط
 if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
   // ربط Auth Emulator
