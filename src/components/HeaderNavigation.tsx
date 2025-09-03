@@ -15,7 +15,11 @@ const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ user }) => {
         return [
           { path: '/admin', label: 'لوحة التحكم', icon: '🏠', ariaLabel: 'الانتقال إلى لوحة التحكم' },
           { path: '/admin/users', label: 'إدارة المستخدمين', icon: '👥', ariaLabel: 'الانتقال إلى إدارة المستخدمين' },
-          { path: '/admin/appointments', label: 'إدارة المواعيد', icon: '📅', ariaLabel: 'الانتقال إلى إدارة المواعيد' }
+          { path: '/admin/appointments', label: 'إدارة المواعيد', icon: '📅', ariaLabel: 'الانتقال إلى إدارة المواعيد' },
+          { path: '/admin/analytics', label: 'التحليلات', icon: '📊', ariaLabel: 'الانتقال إلى التحليلات والتقارير' },
+          { path: '/admin/monitoring', label: 'مراقبة النظام', icon: '📈', ariaLabel: 'الانتقال إلى مراقبة النظام' },
+          { path: '/admin/audit-log', label: 'سجل المراجعة', icon: '📋', ariaLabel: 'الانتقال إلى سجل المراجعة' },
+          { path: '/admin/settings', label: 'الإعدادات', icon: '⚙️', ariaLabel: 'الانتقال إلى إعدادات النظام' }
         ];
       case 'mayor':
         return [
