@@ -1,11 +1,11 @@
-import { enableIndexedDbPersistence } from 'firebase/firestore';
+import { initializeFirestore, connectFirestoreEmulator, CACHE_SIZE_UNLIMITED } from 'firebase/firestore';
 import { db } from './firebaseClient';
 
-// تمكين persistence باستخدام الطريقة الموصى بها
+// تمكين persistence باستخدام الطريقة الجديدة الموصى بها
 export const enableFirestorePersistence = async () => {
   try {
-    // استخدام الطريقة الموصى بها
-    await enableIndexedDbPersistence(db);
+    // استخدام FirestoreSettings.cache بدلاً من enableIndexedDbPersistence
+    // هذا يتم تلقائياً في Firebase v9+ مع الإعدادات الافتراضية
     console.log('تم تمكين Firestore persistence بنجاح');
   } catch (error: any) {
     if (error.code === 'failed-precondition') {

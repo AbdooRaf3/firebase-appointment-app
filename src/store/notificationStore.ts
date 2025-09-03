@@ -51,6 +51,9 @@ interface NotificationStore {
   
   // اختبار الإشعارات
   testNotification: () => void;
+
+  // تشخيص مشاكل FCM
+  diagnoseFCM: () => Promise<void>;
   
   // إرسال إشعار للهاتف (مجاني)
   sendPhoneNotification: (title: string, body: string) => Promise<void>;
@@ -295,19 +298,46 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       try {
         const vapidKey = import.meta.env.VITE_FCM_VAPID_KEY;
         console.log('VAPID Key:', vapidKey ? 'موجود' : 'غير موجود');
-        
+
+        if (!vapidKey) {
+          console.warn('تحذير: مفتاح VAPID غير محدد في متغيرات البيئة');
+          console.log('سيتم استخدام المفتاح الافتراضي للاختبار');
+        }
+
         const token = await getToken(messaging, {
           vapidKey: vapidKey || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
           serviceWorkerRegistration: registration
         });
-        
+
         if (token) {
-          console.log('تم الحصول على توكن Firebase Messaging:', token);
+          console.log('تم الحصول على توكن Firebase Messaging بنجاح:', token.substring(0, 20) + '...');
+
+          // حفظ التوكن في localStorage للاستخدام لاحقاً
+          localStorage.setItem('fcm_token', token);
+          console.log('تم حفظ توكن FCM في localStorage');
         } else {
-          console.log('لم يتم الحصول على توكن Firebase Messaging');
+          console.warn('لم يتم الحصول على توكن Firebase Messaging - التوكن فارغ');
         }
       } catch (tokenError: any) {
-        console.warn('فشل في الحصول على توكن Firebase Messaging:', tokenError.message);
+        console.error('خطأ في الحصول على توكن Firebase Messaging:', tokenError);
+
+        // تحليل نوع الخطأ لتقديم حلول محددة
+        if (tokenError.code === 'messaging/failed-service-worker-registration') {
+          console.error('خطأ في تسجيل Service Worker - تأكد من صحة ملف firebase-messaging-sw.js');
+        } else if (tokenError.code === 'messaging/invalid-vapid-key') {
+          console.error('مفتاح VAPID غير صحيح - تحقق من إعدادات Firebase Console');
+        } else if (tokenError.code === 'messaging/missing-app-config') {
+          console.error('إعدادات Firebase غير مكتملة - تحقق من firebaseClient.ts');
+        } else if (tokenError.message && tokenError.message.includes('401')) {
+          console.error('خطأ في المصادقة (401) - قد يكون مفتاح VAPID غير صحيح أو غير مفعل في Firebase Console');
+          console.error('الحل:');
+          console.error('1. اذهب إلى Firebase Console > Project Settings > Cloud Messaging');
+          console.error('2. تأكد من وجود Web Push certificates');
+          console.error('3. إذا لم يكن موجوداً، انقر على "Generate key pair"');
+        } else {
+          console.error('خطأ غير معروف:', tokenError.message);
+        }
+
         console.log('سيتم استخدام الإشعارات المحلية بدلاً من Firebase Messaging');
       }
 
@@ -405,7 +435,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   sendPhoneNotification: async (title: string, body: string) => {
     try {
       console.log('بدء إرسال إشعار للهاتف:', { title, body });
-      
+
       // التحقق من Service Worker
       if (!('serviceWorker' in navigator)) {
         console.error('المتصفح لا يدعم Service Worker');
@@ -426,7 +456,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       // الحصول على تسجيل Service Worker
       const registration = await navigator.serviceWorker.ready;
       console.log('Service Worker registration:', registration);
-      
+
       if (!registration.active) {
         console.error('Service Worker غير نشط');
         return;
@@ -467,5 +497,119 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     } catch (error: any) {
       console.error('فشل في إرسال إشعار للهاتف:', error);
     }
+  },
+
+  diagnoseFCM: async () => {
+    console.log('🔍 بدء تشخيص مشاكل Firebase Cloud Messaging (FCM)...');
+
+    // فحص 1: دعم المتصفح
+    console.log('📋 فحص 1: دعم المتصفح');
+    if (!('serviceWorker' in navigator)) {
+      console.error('❌ Service Worker غير مدعوم في هذا المتصفح');
+      return;
+    } else {
+      console.log('✅ Service Worker مدعوم');
+    }
+
+    if (!('Notification' in window)) {
+      console.error('❌ الإشعارات غير مدعومة في هذا المتصفح');
+      return;
+    } else {
+      console.log('✅ الإشعارات مدعومة');
+    }
+
+    if (!('PushManager' in window)) {
+      console.error('❌ Push API غير مدعوم في هذا المتصفح');
+      return;
+    } else {
+      console.log('✅ Push API مدعوم');
+    }
+
+    // فحص 2: حالة الإذن
+    console.log('📋 فحص 2: حالة إذن الإشعارات');
+    const permission = Notification.permission;
+    console.log('حالة الإذن:', permission);
+
+    if (permission === 'denied') {
+      console.error('❌ تم رفض إذن الإشعارات - يجب على المستخدم السماح بالإشعارات يدوياً');
+      return;
+    }
+
+    // فحص 3: Service Worker
+    console.log('📋 فحص 3: Service Worker');
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      console.log('✅ Service Worker جاهز:', registration.scope);
+
+      if (!registration.active) {
+        console.warn('⚠️ Service Worker غير نشط');
+      } else {
+        console.log('✅ Service Worker نشط');
+      }
+    } catch (error: any) {
+      console.error('❌ خطأ في Service Worker:', error);
+      return;
+    }
+
+    // فحص 4: متغيرات البيئة
+    console.log('📋 فحص 4: متغيرات البيئة');
+    const vapidKey = import.meta.env.VITE_FCM_VAPID_KEY;
+    const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+    const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID;
+
+    console.log('VAPID Key:', vapidKey ? '✅ موجود' : '❌ غير موجود');
+    console.log('API Key:', apiKey ? '✅ موجود' : '❌ غير موجود');
+    console.log('Project ID:', projectId ? '✅ موجود' : '❌ غير موجود');
+
+    if (!vapidKey) {
+      console.error('❌ مفتاح VAPID غير محدد - هذا يسبب خطأ 401');
+      console.log('🔧 الحل: أضف VITE_FCM_VAPID_KEY إلى ملف .env');
+    }
+
+    if (!apiKey || !projectId) {
+      console.error('❌ إعدادات Firebase غير مكتملة');
+    }
+
+    // فحص 5: Firebase Messaging
+    console.log('📋 فحص 5: Firebase Messaging');
+    try {
+      const messaging = getMessagingInstance();
+      if (!messaging) {
+        console.error('❌ Firebase Messaging غير متاح');
+        return;
+      } else {
+        console.log('✅ Firebase Messaging متاح');
+      }
+
+      // محاولة الحصول على التوكن
+      console.log('📋 محاولة الحصول على FCM Token...');
+      const token = await getToken(messaging, {
+        vapidKey: vapidKey || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
+        serviceWorkerRegistration: await navigator.serviceWorker.ready
+      });
+
+      if (token) {
+        console.log('✅ تم الحصول على FCM Token بنجاح:', token.substring(0, 20) + '...');
+        console.log('🎉 FCM يعمل بشكل صحيح!');
+      } else {
+        console.error('❌ لم يتم الحصول على FCM Token');
+      }
+    } catch (error: any) {
+      console.error('❌ خطأ في FCM:', error);
+
+      if (error.message && error.message.includes('401')) {
+        console.error('🔍 تفاصيل الخطأ 401:');
+        console.error('- قد يكون مفتاح VAPID غير صحيح');
+        console.error('- قد لا تكون Web Push مفعلة في Firebase Console');
+        console.error('- قد يكون هناك مشكلة في إعدادات Firebase project');
+        console.log('🔧 الحلول المقترحة:');
+        console.log('1. اذهب إلى Firebase Console > Project Settings > Cloud Messaging');
+        console.log('2. تأكد من وجود Web Push certificates');
+        console.log('3. إذا لم يكن موجوداً، انقر على "Generate key pair"');
+        console.log('4. انسخ المفتاح الجديد إلى VITE_FCM_VAPID_KEY في ملف .env');
+      }
+    }
+
+    console.log('🏁 انتهى التشخيص');
   }
 }));
