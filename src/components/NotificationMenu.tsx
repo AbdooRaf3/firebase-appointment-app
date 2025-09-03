@@ -197,26 +197,37 @@ const NotificationMenu: React.FC<NotificationMenuProps> = ({
               </div>
             )}
             
-            {/* زر الإشعار التجريبي */}
-            {notifications.length === 0 && (
-              <div className="mt-4 pt-3 border-t border-gray-200">
-                <button
-                  onClick={async () => {
-                    if (user?.uid) {
-                      await sendNotification({
-                        userId: user.uid,
-                        title: "إشعار تجريبي",
-                        message: "هذا إشعار تجريبي لاختبار النظام",
-                        type: "general",
-                      });
-                    }
-                  }}
-                  className="w-full px-4 py-2 text-sm border rounded-lg text-green-600 border-green-200 hover:bg-green-50"
-                >
-                  إرسال إشعار تجريبي
-                </button>
-              </div>
-            )}
+            {/* أزرار الاختبار */}
+            <div className="mt-4 pt-3 border-t border-gray-200 space-y-2">
+              <button
+                onClick={async () => {
+                  if (user?.uid) {
+                    await sendNotification({
+                      userId: user.uid,
+                      title: "إشعار تجريبي",
+                      message: "هذا إشعار تجريبي لاختبار النظام",
+                      type: "general",
+                    });
+                  }
+                }}
+                className="w-full px-4 py-2 text-sm border rounded-lg text-green-600 border-green-200 hover:bg-green-50"
+              >
+                إرسال إشعار تجريبي
+              </button>
+              
+              <button
+                onClick={async () => {
+                  const { sendPhoneNotification } = useNotificationStore.getState();
+                  await sendPhoneNotification(
+                    "اختبار شاشة القفل",
+                    "هذا اختبار لإشعارات شاشة القفل"
+                  );
+                }}
+                className="w-full px-4 py-2 text-sm border rounded-lg text-blue-600 border-blue-200 hover:bg-blue-50"
+              >
+                اختبار شاشة القفل
+              </button>
+            </div>
           </div>
         </div>
       )}

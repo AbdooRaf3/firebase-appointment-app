@@ -234,6 +234,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
   setupPushNotifications: async () => {
     try {
+      console.log('بدء إعداد إشعارات المتصفح...');
+      
       // فحص إذن الإشعارات أولاً
       const hasPermission = await get().checkNotificationPermission();
       if (!hasPermission) {
@@ -258,45 +260,49 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         return;
       }
 
+      console.log('محاولة الحصول على توكن Firebase Messaging...');
+      
       // الحصول على توكن الإشعارات - محسن للآيفون
       const messaging = getMessaging();
-      const token = await getToken(messaging, {
-        vapidKey: import.meta.env.VITE_FCM_VAPID_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
-        serviceWorkerRegistration: registration
-      });
-
-      if (token) {
-        console.log('تم الحصول على توكن الإشعارات:', token);
+      
+      try {
+        const token = await getToken(messaging, {
+          vapidKey: import.meta.env.VITE_FCM_VAPID_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
+          serviceWorkerRegistration: registration
+        });
         
-        // حفظ التوكن في Firestore
-        const auth = getAuth();
-        if (auth.currentUser) {
-          await addDoc(collection(db, 'deviceTokens'), {
-            uid: auth.currentUser.uid,
-            token: token,
-            createdAt: serverTimestamp()
-          });
-          console.log('تم حفظ توكن الإشعارات في Firestore');
+        if (token) {
+          console.log('تم الحصول على توكن Firebase Messaging:', token);
+        } else {
+          console.log('لم يتم الحصول على توكن Firebase Messaging');
         }
+      } catch (tokenError: any) {
+        console.warn('فشل في الحصول على توكن Firebase Messaging:', tokenError.message);
+        console.log('سيتم استخدام الإشعارات المحلية بدلاً من Firebase Messaging');
       }
 
-             // الاستماع للإشعارات الواردة (عندما يكون التطبيق مفتوح)
-       onMessage(messaging, async (payload) => {
-         console.log('تم استلام إشعار (التطبيق مفتوح):', payload);
-         
-         // عرض الإشعار في المتصفح عبر SW ليظهر على شاشة القفل
-         if (payload.notification) {
-           const swReg = await navigator.serviceWorker.ready;
-           await swReg.showNotification(payload.notification.title || 'إشعار جديد', {
-             body: payload.notification.body,
-             icon: '/icon-192x192.png',
-             badge: '/icon-192x192.png',
-             tag: 'appointment-notification',
-             data: payload.data || {},
-             requireInteraction: true
-           });
-         }
-       });
+      // الاستماع للإشعارات الواردة (عندما يكون التطبيق مفتوح)
+      try {
+        onMessage(messaging, async (payload) => {
+          console.log('تم استلام إشعار (التطبيق مفتوح):', payload);
+          
+          // عرض الإشعار في المتصفح عبر SW ليظهر على شاشة القفل
+          if (payload.notification) {
+            const swReg = await navigator.serviceWorker.ready;
+            await swReg.showNotification(payload.notification.title || 'إشعار جديد', {
+              body: payload.notification.body,
+              icon: '/icons/icon-192x192.png',
+              badge: '/icons/icon-192x192.png',
+              tag: 'appointment-notification',
+              data: payload.data || {},
+              requireInteraction: true
+            });
+          }
+        });
+        console.log('تم إعداد الاستماع للإشعارات الواردة');
+      } catch (onMessageError: any) {
+        console.warn('فشل في إعداد الاستماع للإشعارات الواردة:', onMessageError.message);
+      }
 
       // تحديث حالة الإشعارات
       set({ pushNotificationsEnabled: true });
@@ -366,17 +372,36 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
   sendPhoneNotification: async (title: string, body: string) => {
     try {
+      console.log('بدء إرسال إشعار للهاتف:', { title, body });
+      
       // التحقق من Service Worker
       if (!('serviceWorker' in navigator)) {
-        console.log('المتصفح لا يدعم Service Worker');
+        console.error('المتصفح لا يدعم Service Worker');
+        return;
+      }
+
+      // التحقق من إذن الإشعارات
+      if (!('Notification' in window)) {
+        console.error('المتصفح لا يدعم الإشعارات');
+        return;
+      }
+
+      if (Notification.permission !== 'granted') {
+        console.error('لم يتم منح إذن الإشعارات:', Notification.permission);
         return;
       }
 
       // الحصول على تسجيل Service Worker
       const registration = await navigator.serviceWorker.ready;
+      console.log('Service Worker registration:', registration);
       
+      if (!registration.active) {
+        console.error('Service Worker غير نشط');
+        return;
+      }
+
       // إرسال رسالة إلى Service Worker لعرض الإشعار - محسن للآيفون
-      registration.active?.postMessage({
+      const notificationData = {
         type: 'SHOW_NOTIFICATION',
         title: title,
         body: body,
@@ -401,9 +426,12 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
             icon: '/icons/icon-192x192.png'
           }
         ]
-      });
+      };
 
-      console.log('تم إرسال إشعار للهاتف - محسن للآيفون');
+      console.log('إرسال بيانات الإشعار إلى Service Worker:', notificationData);
+      registration.active.postMessage(notificationData);
+
+      console.log('تم إرسال إشعار للهاتف بنجاح - محسن للآيفون');
     } catch (error: any) {
       console.error('فشل في إرسال إشعار للهاتف:', error);
     }
