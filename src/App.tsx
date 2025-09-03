@@ -1,6 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
+import { useNotificationStore } from './store/notificationStore';
 import { enableFirestorePersistence } from './firebase/enablePersistence';
 import Header from './components/Header';
 import ToastContainer from './components/Toast';
@@ -95,7 +96,8 @@ const AdminDashboard: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  const { initializeAuth } = useAuthStore();
+  const { initializeAuth, user } = useAuthStore();
+  const { setupPushNotifications } = useNotificationStore();
 
   useEffect(() => {
     // تهيئة المصادقة
@@ -110,6 +112,20 @@ const App: React.FC = () => {
       }
     };
   }, [initializeAuth]);
+
+  // تهيئة الإشعارات عند تسجيل الدخول
+  useEffect(() => {
+    if (user) {
+      // تهيئة الإشعارات بعد تأخير قصير للتأكد من اكتمال تسجيل الدخول
+      const timer = setTimeout(() => {
+        setupPushNotifications().catch(error => {
+          console.error('فشل في تهيئة الإشعارات:', error);
+        });
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [user, setupPushNotifications]);
 
   return (
     <IOSOptimizations>

@@ -258,12 +258,12 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         return;
       }
 
-             // الحصول على توكن الإشعارات
-       const messaging = getMessaging();
-       const token = await getToken(messaging, {
-         vapidKey: import.meta.env.VITE_FCM_VAPID_KEY,
-         serviceWorkerRegistration: registration
-       });
+      // الحصول على توكن الإشعارات
+      const messaging = getMessaging();
+      const token = await getToken(messaging, {
+        vapidKey: import.meta.env.VITE_FCM_VAPID_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa40HIcF6j7Qb8JjS5XryPDA5gJINq7StgcSOYOGpCM2zsJIlhrqH7UvXy4i0',
+        serviceWorkerRegistration: registration
+      });
 
       if (token) {
         console.log('تم الحصول على توكن الإشعارات:', token);

@@ -21,15 +21,26 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// تهيئة Messaging (اختياري)
+// تهيئة Messaging
 export let messaging: any = null;
 
-// التحقق من دعم Messaging
-isSupported().then((supported) => {
-  if (supported) {
-    messaging = getMessaging(app);
+// التحقق من دعم Messaging وتهيئته
+const initMessaging = async () => {
+  try {
+    const supported = await isSupported();
+    if (supported) {
+      messaging = getMessaging(app);
+      console.log('Firebase Messaging initialized successfully');
+    } else {
+      console.log('Firebase Messaging is not supported in this browser');
+    }
+  } catch (error) {
+    console.error('Failed to initialize Firebase Messaging:', error);
   }
-});
+};
+
+// تهيئة Messaging
+initMessaging();
 
 // ربط Emulators في بيئة التطوير فقط
 if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATORS === 'true') {
